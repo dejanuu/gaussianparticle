@@ -10,9 +10,11 @@ Department of Physics, University of Helsinki, Finland
 
 ## Compiling, general
 
-The framework is divided into Foetran module files that can be gathered into a siri4-framework subroutine library. The main programs can be compiled and linked using that library. The subroutine library and the most of the main programs are written in Fortran, complying with 2008 language standard.
+The framework is divided into Foetran module files that can be gathered into a siri4-framework subroutine library. The main programs can be compiled and linked using that library. The subroutine library and the most of the main programs are written in Fortran, complying with the 2008 language standard.
 
-There will be a Makefile provided. In general, with GNU gfortran, the following options will are needed/recommended when compiling: '-ffree-form -std=f2008 -fimplicit-none'.
+There will be a Makefile provided. In general, with GNU gfortran, the following options will are needed/recommended when compiling:
+
+	-ffree-form -std=f2008 -fimplicit-none
 
 ### GS Gaussian spheres
 
@@ -23,7 +25,8 @@ Produces random Gaussian sphere shapes and discretized mesh representations for 
 Option 1: use Makefile.
 
 Option 2: gfortran compiling with one command:
-	 gfortran -ffree-form -std=f2008 -fimplicit-none -o GS sirisconstants.f sirismath.f sirisgeometry.f sirisgaussiansphere.f GS-main.f
+
+	gfortran -ffree-form -std=f2008 -fimplicit-none -o GS sirisconstants.f sirismath.f sirisgeometry.f sirisgaussiansphere.f GS-main.f
 
 #### Usage
 
