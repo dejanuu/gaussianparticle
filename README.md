@@ -14,7 +14,7 @@ The framework is divided into Fortran module files that can be gathered into a s
 
 There will be a Makefile provided. In general, with GNU gfortran, the following options will are needed/recommended when compiling:
 
-	-ffree-form -std=f2008 -fimplicit-none
+	-ffree-form -std=f2008
 
 ### GS Gaussian spheres
 
