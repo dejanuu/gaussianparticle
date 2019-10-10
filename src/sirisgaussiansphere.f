@@ -125,12 +125,12 @@ subroutine save_idl(fbn,XT,IT,nnod,ntri)
   write(fu,*) nnod, ntri
   ! Vertices
   do j1=1,nnod
-    write(fu,*) (XT(j1,j2),j2=1,3)
+    write(fu,*) XT(j1,:)
   end do
   ! Triangle indices
   do j1=1,ntri
     write (fu,*) 3
-    write (fu,*) (IT(j1,j2),j2=1,3)
+    write (fu,*) IT(j1,:)
   end do
 
   close(fu)
@@ -174,6 +174,39 @@ end subroutine save_matlab
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! 
+subroutine save_off(fbn,XT,IT,nnod,ntri)
+
+  character(*), intent(in) :: fbn
+  real(kind=dp), dimension(:,:), intent(in) :: XT
+  integer, dimension(:,:), intent(in) :: IT
+  integer, intent(in) :: nnod, ntri
+  integer :: j1, j2, fu
+  character(len=file_name_length) :: fn
+
+  ! File name
+  write(fn, '(A,A)') trim(fbn), ".off"
+  
+  ! File unit and unit opening
+  open(newunit=fu, file=trim(fn), action='write', status='replace')
+
+  write(fu,'(A)') "OFF"
+  write(fu,'(I0,1X,I0,1X,I0)') nnod, ntri, 0
+
+  ! Write surface vertices
+  do j1=1,nnod
+    write (fu,*) XT(j1,:)
+  end do
+  ! Triangle indices
+  do j1=1,ntri
+    write (fu,*) 3, IT(j1,:)-1
+  end do
+  close(fu)
+
+end subroutine save_off
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! 
 subroutine save_vtk(fbn,XT,IT,nnod,ntri)
 
   character(*), intent(in) :: fbn
@@ -197,13 +230,13 @@ subroutine save_vtk(fbn,XT,IT,nnod,ntri)
 
   ! Write surface vertices
   do j1=1,nnod
-    write (fu,*) (XT(j1,j2),j2=1,3)
+    write (fu,*) XT(j1,:)
   end do
   
   ! Triangle indices
   write (fu,'(A,I7,I7)') 'POLYGONS ',ntri,4*ntri
   do j1=1,ntri
-    write (fu,*) 3,(IT(j1,j2)-1,j2=1,3)
+    write (fu,*) 3,IT(j1,:)-1
   end do
   close(fu)
 

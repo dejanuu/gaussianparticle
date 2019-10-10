@@ -1,7 +1,7 @@
 
 INPUT FILE for Gaussian spheres (siris4-framework)
 
-3               ! Number of Gaussian spheres.
+1               ! Number of Gaussian spheres.
 0               ! Seed for the random number generator. Non-positive number for random seed.
 0.1             ! Relative standard deviation of radial distance.
 3.0             ! Power law index for correlation. Increase for irregular shape.
@@ -12,4 +12,5 @@ INPUT FILE for Gaussian spheres (siris4-framework)
 siris-output
 0               ! Output in Matlab format. 0 for no, 1 for yes.
 0               ! Output for IDL format.
-1               ! Output in VTK format
+0               ! Output in VTK format
+1               ! Output in OFF format

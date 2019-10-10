@@ -36,15 +36,17 @@ end function simplex3volume
 ! octant.
 subroutine trids(MU,PHI,IT,nnod,ntri,ntr)
 
-  real(kind=dp), dimension(:), intent(out) :: MU, PHI
-  integer, dimension(:,:), intent(out) :: IT
+  real(kind=dp), dimension(:), pointer, intent(out) :: MU, PHI
+  integer, dimension(:,:), pointer, intent(out) :: IT
   integer, intent(out) :: nnod, ntri
   integer, intent(in) :: ntr
   integer :: j0, j1, j2, j3
   integer, dimension(0:360,0:720) :: NJJ
   real(kind=dp) :: the, fi, ct, st, cf, sf
-  real(kind=dp), dimension(130000,3) :: U
-
+  real(kind=dp), dimension(:,:), allocatable :: U
+  
+  ! Allocate tables
+  allocate(MU(4*ntr**2+2), PHI(4*ntr**2+2), IT(8*ntr**2,3), U(4*ntr**2+2,3))
 
   ! NODES:
 

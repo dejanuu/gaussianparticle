@@ -3,7 +3,7 @@
 # Compiler
 COMP ?= gfortran
 # Required options for gfortran
-FOPT ?= -ffree-form -std=f2008 -fimplicit-none
+FOPT ?= -ffree-form -std=f2008 -fimplicit-none -fcheck=bounds,pointer
 # Add optional options
 FOPT += -O1
 
