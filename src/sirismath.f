@@ -122,7 +122,7 @@ end subroutine init_random
 ! of associated Legendre functions with given m.
 subroutine LEGA(LEGPLM,x,lmax,m)
 
-  real (kind=dp), dimension(0:256,0:256), intent(out) :: LEGPLM
+  real (kind=dp), dimension(0:,0:), intent(out) :: LEGPLM
   real (kind=dp), intent(in) :: x
   integer, intent(in) :: lmax, m
   integer :: i, l

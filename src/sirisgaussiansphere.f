@@ -43,7 +43,7 @@ end function compute_volume
 ! function with power-law Legendre coefficients.
 subroutine cs1cf(CSCF,nu,lmin,lmax)
 
-  real(kind=dp), dimension(0:256), intent(out) :: CSCF
+  real(kind=dp), dimension(0:), intent(out) :: CSCF
   real(kind=dp), intent(in) :: nu
   integer, intent(in) :: lmin, lmax
   integer :: l
@@ -73,7 +73,7 @@ end subroutine cs1cf
 ! in output.
 subroutine csini(CL,crlen,cs2d,cs4d,lmax)
 
-  real(kind=dp), dimension(0:256), intent(inout) :: CL
+  real(kind=dp), dimension(0:), intent(inout) :: CL
   real(kind=dp), intent(out) :: crlen, cs2d, cs4d
   integer, intent(in) :: lmax
   integer :: l
@@ -217,11 +217,11 @@ end subroutine save_vtk
 ! Version 3.1, 2003 September 12.
 subroutine plmg(PLM,x,lmax,m)
 
-  real(kind=dp), dimension(0:256,0:256), intent(out) :: PLM
+  real(kind=dp), dimension(0:,0:), intent(out) :: PLM
   real(kind=dp), intent(in) :: x
   integer, intent(in) :: lmax, m
   integer :: l, temp
-  complex(kind=dp), dimension(0:256,0:256,-2:2) :: PLMM
+  complex(kind=dp), dimension(0:lmax,0:lmax,-2:2) :: PLMM
   complex(kind=dp) :: i
 
   i=cmplx(0.0_dp,1.0_dp)
@@ -250,7 +250,7 @@ end subroutine plmg
 ! Version 3.1, 2003 September 12.
 subroutine plmmg(PLMM,x,lmax,m1,m2)
 
-  complex(kind=dp), dimension(0:256,0:256,-2:2), intent(out) :: PLMM
+  complex(kind=dp), dimension(0:,0:,-2:), intent(out) :: PLMM
   real(kind=dp), intent(in) :: x
   integer, intent(in) :: lmax, m1, m2
   integer :: l, m0, m12, p12
@@ -310,7 +310,7 @@ end subroutine plmmg
 ! Radial distance in a given direction for a sample G-sphere.
 real(kind=dp) function rgs(ACF,BCF,mu,phi,beta,lmin,lmax)
 
-  real(kind=dp), dimension(0:256,0:256), intent(in) :: ACF, BCF
+  real(kind=dp), dimension(0:,0:), intent(in) :: ACF, BCF
   real(kind=dp), intent(in) :: mu, phi, beta
   integer, intent(in) :: lmin, lmax
 
@@ -326,7 +326,7 @@ subroutine rgstd(X,N,MU,PHI,ACF,BCF,rmax,beta,IT,nnod,ntri,lmax)
   real(kind=dp), dimension(:,:), intent(out) :: X
   real(kind=dp), dimension(:,:), intent(out) :: N
   real(kind=dp), dimension(:), intent(in) :: MU, PHI
-  real(kind=dp), dimension(0:256,0:256), intent(in) :: ACF, BCF
+  real(kind=dp), dimension(0:,0:), intent(in) :: ACF, BCF
   real(kind=dp), intent(out) :: rmax
   real(kind=dp), intent(in) :: beta
   integer, dimension(:,:), intent(in) :: IT
@@ -369,7 +369,7 @@ end subroutine rgstd
 ! Version 3.1, 2003 September 12.
 real(kind=dp) function rsph1(ALM,BLM,mu,phi,beta,lmax)
 
-  real(kind=dp), dimension(0:256,0:256), intent(in) :: ALM,BLM
+  real(kind=dp), dimension(0:,0:), intent(in) :: ALM,BLM
   real(kind=dp), intent(in) :: mu, phi, beta
   integer, intent(in) :: lmax
 
@@ -382,12 +382,12 @@ end
 ! Logarithmic radial distance in a given direction for a sample G-sphere.
 reaL(kind=dp) function sgs(ACF,BCF,mu,phi,lmin,lmax)
 
-  real(kind=dp), dimension(0:256,0:256), intent(in) :: ACF, BCF
+  real(kind=dp), dimension(0:,0:), intent(in) :: ACF, BCF
   real(kind=dp), intent(in) :: mu,phi
   integer, intent(in) :: lmin, lmax
   integer :: l, m
-  real(kind=dp), dimension(256) :: CPHI, SPHI
-  real(kind=dp), dimension(0:256,0:256) :: LEGP
+  real(kind=dp), dimension(lmax) :: CPHI, SPHI
+  real(kind=dp), dimension(0:lmax,0:lmax) :: LEGP
 
   if (lmax == 0) then
     sgs=ACF(0,0)
@@ -423,8 +423,8 @@ end function sgs
 ! Version 2002-12-16
 subroutine sgscf(ACF,BCF,SCFSTD,lmax)
 
-  real(kind=dp), dimension(0:256,0:256), intent(out) :: ACF, BCF
-  real(kind=dp), dimension(0:256,0:256), intent(in) :: SCFSTD
+  real(kind=dp), dimension(0:,0:), intent(out) :: ACF, BCF
+  real(kind=dp), dimension(0:,0:), intent(in) :: SCFSTD
   integer, intent(in) :: lmax
   integer :: l, m
   real(kind=dp) :: rn
@@ -453,8 +453,8 @@ end subroutine sgscf
 ! Version 2002-12-16
 subroutine sgscfstd(SCFSTD,CSCF,beta,lmax)
 
-  real(kind=dp), dimension(0:256,0:256), intent(out) :: SCFSTD
-  real(kind=dp), dimension(0:256), intent(in) :: CSCF
+  real(kind=dp), dimension(0:,0:), intent(out) :: SCFSTD
+  real(kind=dp), dimension(0:), intent(in) :: CSCF
   real(kind=dp), intent(in) :: beta
   integer, intent(in) :: lmax
   integer :: l, m
@@ -478,12 +478,12 @@ end subroutine sgscfstd
 ! Version 3.1, 2003 September 12.
 real(kind=dp) function ssph1(ALM,BLM,mu,phi,lmax)
 
-  real(kind=dp),dimension(0:256,0:256), intent(in) :: ALM, BLM
+  real(kind=dp),dimension(0:,0:), intent(in) :: ALM, BLM
   real(kind=dp), intent(in) :: mu, phi
   integer, intent(in) :: lmax
-  real(kind=dp), dimension(256) :: SPHI, CPHI
+  real(kind=dp), dimension(lmax) :: SPHI, CPHI
   integer :: l, m, temp
-  real(kind=dp), dimension(0:256,0:256) :: PLM
+  real(kind=dp), dimension(0:lmax,0:lmax) :: PLM
 
 
   ! Instant return if lmax=0:
