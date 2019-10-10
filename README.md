@@ -26,7 +26,7 @@ Option 1: use Makefile.
 
 Option 2: gfortran compiling with one command:
 
-	gfortran -ffree-form -std=f2008 -fimplicit-none -o GS sirisconstants.f sirismath.f sirisgeometry.f sirisgaussiansphere.f GS-main.f
+	gfortran -ffree-form -std=f2008 -o GS sirisconstants.f sirismath.f sirisgeometry.f sirisgaussiansphere.f GS-main.f
 
 #### Usage
 
