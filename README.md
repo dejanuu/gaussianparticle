@@ -20,7 +20,7 @@ There will be a Makefile provided. In general, with GNU gfortran, the following 
 
 Produces random Gaussian sphere shapes and discretized mesh representations for them. Can write output in Matlab, IDL IDF, Paraview VTK, and OFF.
 
-If pubishing or distributing results that us this code, please reference to: Muinonen K, Nousiainen T, Fast P, Lumme K, and Peltoniemi JI (1996). Light scattering by Gaussian random particles: Ray optics approximation. Journal of Quantitative Spectroscopy & Radiative Trasnfer 55(5), 577–601. DOI:10.1016/0022-4073(96)00003-9.
+If pubishing or distributing results that use this code, please reference to: Muinonen K, Nousiainen T, Fast P, Lumme K, and Peltoniemi JI (1996). Light scattering by Gaussian random particles: Ray optics approximation. Journal of Quantitative Spectroscopy & Radiative Trasnfer 55(5), 577–601. DOI:10.1016/0022-4073(96)00003-9.
 
 #### Compiling
 
