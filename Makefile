@@ -3,9 +3,12 @@
 # Compiler
 COMP ?= gfortran
 # Required options for gfortran
-FOPT ?= -ffree-form -std=f2008 -fimplicit-none -fcheck=bounds,pointer
-# Add optional options
-FOPT += -O1
+FOPT ?= -ffree-form -std=f2008
+# Optional choices
+# For developing
+FOPT += -fimplicit-none -fcheck=bounds,pointer
+# Minor optimization
+#FOPT += -O1
 
 
 ###############################################################################
@@ -18,8 +21,8 @@ LIBFILENAMES = sirisconstants sirismath sirisgeometry sirisgaussiansphere
 all : GS
 .PHONY : all clean
 
-GS : src/GS-main.f siris4lib
-	$(COMP) $(FOPT) -o GS -J mod -L lib src/GS-main.f -l siris4 
+GS : GS/GS-main.f siris4lib
+	$(COMP) $(FOPT) -o GS/GS -J mod -L lib GS/GS-main.f -l siris4 
 
 siris4lib : lib/libsiris4.a
 	
@@ -33,4 +36,5 @@ clean :
 	rm -rf lib/*.o
 	rm -rf lib/*.a
 	rm -rf mod/*.mod
-	rm -rf *.exe
+	rm -rf GS/GS.exe
+	rm -rf GS/GS
