@@ -22,7 +22,9 @@ Produces random Gaussian sphere shapes and discretized mesh representations for 
 
 #### Compiling
 
-Option 1: use Makefile.
+Option 1: use Makefile
+
+	make GS
 
 Option 2: gfortran compiling with one command:
 
