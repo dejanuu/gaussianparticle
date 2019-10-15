@@ -13,13 +13,19 @@ FOPT += -fimplicit-none -fcheck=bounds,pointer
 
 ###############################################################################
 
+MKDIR = mkdir -p
+DIRECTORIES = lib mod
+
+###############################################################################
+
 LIBFILENAMES = sirisconstants sirismath sirisgeometry sirisgaussiansphere
 
 
 ###############################################################################
 
-all : GS
-.PHONY : all clean
+all : directories GS
+.PHONY : all clean directories
+
 
 GS : GS/GS-main.f siris4lib
 	$(COMP) $(FOPT) -o GS/GS -J mod -L lib GS/GS-main.f -l siris4 
@@ -38,3 +44,9 @@ clean :
 	rm -rf mod/*.mod
 	rm -rf GS/GS.exe
 	rm -rf GS/GS
+
+
+directories: ${DIRECTORIES}
+
+${DIRECTORIES}:
+	${MKDIR} ${DIRECTORIES}

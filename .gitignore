@@ -1,0 +1,6 @@
+*.o
+*.mod
+lib
+mod
+.directory
+GS/GS
