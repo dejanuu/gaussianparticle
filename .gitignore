@@ -1,0 +1,10 @@
+dev/
+mod/*.mod
+lib/*.o
+lib/*.a
+*/*.exe
+GS/*.out
+GS/*.idf
+GS/*.vtk
+GS/*.off
+GS/GS
