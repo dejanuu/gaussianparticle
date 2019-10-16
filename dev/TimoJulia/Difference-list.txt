@@ -1,9 +1,0 @@
-DIFFERENCE LIST
-
-Files in Timo, not in Julia
--meshread.f90
--obj_io.f90
-
-Files different between Timo and Julia
--frotlc.f90
--radtrans.f90
