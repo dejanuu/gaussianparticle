@@ -3,23 +3,29 @@
 # Compiler
 COMP ?= gfortran
 # Required options for gfortran
-FOPT ?= -ffree-form -std=f2008
+FOPT = -ffree-form -std=f2008
 # Optional choices
 # For developing
-FOPT += -fimplicit-none -fcheck=bounds,pointer
+#FOPT += -fimplicit-none -fcheck=bounds,pointer -Wall -Wno-maybe-uninitialized
 # Minor optimization
 #FOPT += -O1
+# Major optimization
+FOPT += -Ofast -mtune=native
+# For debugging
+#FOPT += -g -ffpe-trap=invalid,zero,overflow,underflow
+
+###############################################################################
+
+LIBFILENAMES = sirisconstants sirismath sirismaterial sirisnumint sirisgeometry sirisgaussiansphere sirisray sirisradtrans
 
 
 ###############################################################################
 
-LIBFILENAMES = sirisconstants sirismath sirisgeometry sirisgaussiansphere
-
-
-###############################################################################
-
-all : GS
+all : GS singleparticle
 .PHONY : all clean
+
+singleparticle : single-particle/single-particle-main.f siris4lib
+	$(COMP) $(FOPT) -o single-particle/singleparticle -J mod -L lib single-particle/single-particle-main.f -l siris4 
 
 GS : GS/GS-main.f siris4lib
 	$(COMP) $(FOPT) -o GS/GS -J mod -L lib GS/GS-main.f -l siris4 
@@ -38,3 +44,5 @@ clean :
 	rm -rf mod/*.mod
 	rm -rf GS/GS.exe
 	rm -rf GS/GS
+	rm -rf single-particle/singleparticle.exe
+	rm -rf single-particle/singleparticle

@@ -16,6 +16,150 @@ contains
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Computes the intersection point on the plane determined
+! by the three given positions.
+subroutine isplane(S,X,K,U3,D,X1,X2,X3)
+
+  real(kind=dp), dimension(3), intent(out) :: S
+  real(kind=dp), dimension(3), intent(in) :: X, K, U3
+  real(kind=dp), dimension(2), intent(out) :: D
+  real(kind=dp), dimension(3), intent(in) :: X1, X2, X3
+  real(kind=dp) :: uu, u, u1dx, u2dx, u3dx, u1k, u2k, u3k, v, w
+  real(kind=dp), parameter :: tol=1.0e-14
+  real(kind=dp), dimension(3) :: U1, U2, DX
+
+  call univec(U1,D(1),X2,X1)
+  call univec(U2,D(2),X3,X1)
+     
+  DX = X1 - X
+
+  call prosca(u3dx,U3,DX)
+
+  if(abs(u3dx) < tol) then
+    S(3) = 0.0_dp
+  else
+    call prosca(u3k,U3,K)
+    if (abs(u3k) < tol) then
+      write(output_unit,*) U3, K, u3k, u3dx
+      write(output_unit,*) 'Trouble in ISPLANE: direction parallel to plane.'
+    end if
+    S(3)=u3dx/u3k
+  end if
+
+  call prosca(uu,U1,U2)
+  u = 1.0_dp - uu**2
+  if(abs(u) < tol) then
+    write(output_unit,*) U1,U2,u
+    write(output_unit,*) 'Trouble in ISPLANE: plane ill-defined.'
+  end if 
+  call prosca(u1dx,U1,DX)
+  call prosca(u2dx,U2,DX)
+  call prosca(u1k,U1,K)
+  call prosca(u2k,U2,K)
+  v = -u1dx+S(3)*u1k
+  w = -u2dx+S(3)*u2k
+  S(1) = (v-uu*w)/u
+  S(2) = (w-uu*v)/u
+
+end subroutine isplane
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Determines the ray intersection point on the discretized object
+! from the given position and unit direction vectors. 
+! X = ray coordinates, K = keout, 
+! XN = node coords, NT = outer triangle normals, IT = indexes 
+! nk = N dot K, nis = leikkaako (1) vai ei (0) 
+subroutine istri(X,K,N,XN,NT,IT,nk,s3,ntri,nis,nie)
+
+  real(kind=dp), dimension(3), intent(inout) :: X
+  real(kind=dp), dimension(3), intent(in) :: K
+  real(kind=dp), dimension(3), intent(out) :: N
+  real (kind=dp), dimension(:,:), intent(in) :: XN ! ncoord
+  real (kind=dp), dimension(:,:), intent(in) :: NT ! trinorm
+  integer, dimension(:,:), intent(in) :: IT ! nnod
+  real(kind=dp), intent(out) :: nk, s3
+  integer, intent(in) :: ntri
+  integer, intent(out) :: nis
+  real(kind=dp), intent(in) :: nie
+  integer :: j1
+  real (kind=dp), dimension(2) :: D
+  real(kind=dp), dimension(3) :: X1, X2, X3, H, U3, S
+  real (kind=dp) :: p1, p2, p3, q1, q2, q3, kx
+
+  ! Initialize:
+  nis = 0
+  s3 = 1.0e10_dp
+
+  ! Check all triangles:
+  loop: do j1 = 1, ntri     
+
+    ! Triangle orientation must allow interaction:
+    ! N on ulkonormaali ja K sateen etenemissuunta
+    N = nie*NT(j1,1:3)
+    call prosca(nk,N,K) ! nk on N ja K vektorien pistetulo
+    if (nk >= 0.0_dp) cycle loop ! jos nk ge 0.0 niin ollaan vŠŠrŠllŠ puolella. 
+
+    ! Triangle located behind the ray path:
+    X1 = XN(IT(j1,1), 1:3) - X(1:3)
+    X2 = XN(IT(j1,2), 1:3) - X(1:3)
+    X3 = XN(IT(j1,3), 1:3) - X(1:3)
+
+    call prosca(p1, K, X1)
+    call prosca(p2, K, X2)
+    call prosca(p3, K, X3)
+              
+    if (p1 < 0.0_dp .and. p2 < 0.0_dp .and. p3 < 0.0_dp) cycle loop                    
+              
+    ! Triangle located fully under/above the ray path: 
+    call prosca(q1,X,X1)
+    call prosca(q2,X,X2)
+    call prosca(q3,X,X3)
+    call prosca(kx,K,X)
+    p1 = q1-kx*p1
+    p2 = q2-kx*p2
+    p3 = q3-kx*p3
+
+    if (p1 < 0.0_dp .and. p2 < 0.0_dp .and. p3 < 0.0_dp) cycle loop
+    if (p1 > 0.0_dp .and. p2 > 0.0_dp .and. p3 > 0.0_dp) cycle loop
+    
+    ! Triangle located fully aside the ray path: 
+    call provec(H,K,X) 
+    call prosca(p1,H,X1)
+    call prosca(p2,H,X2)
+    call prosca(p3,H,X3)
+
+    if (p1 < 0.0_dp .and. p2 < 0.0_dp .and. p3 < 0.0_dp) cycle loop
+    if (p1 > 0.0_dp .and. p2 > 0.0_dp .and. p3 > 0.0_dp) cycle loop        
+
+    ! Triangle intersection:
+    U3(1:3) = NT(j1,1:3)
+    X1(1:3) = XN(IT(j1,1),1:3)
+    X2(1:3) = XN(IT(j1,2),1:3)
+    X3(1:3) = XN(IT(j1,3),1:3)
+
+    call isplane(S,X,K,U3,D,X1,X2,X3)
+
+    ! Intersection update:
+    if(S(1) >= 0.0_dp .and. S(2) >= 0.0_dp .and. &
+      D(1)*S(2)+D(2)*S(1) <= D(1)*D(2) .and. S(3) >= 0.0_dp &
+      .and. S(3) <= s3) then
+      nis = j1
+      s3 = S(3)
+    end if 
+  end do  loop
+
+  ! Compute intersection point and normal:
+  if(nis > 0) then
+    X(1:3) = X(1:3)+s3*K(1:3)
+    N(1:3) = nie*NT(nis,1:3)
+    call prosca(nk,N,K)
+  end if
+
+end subroutine istri
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 function simplex3volume(u,v,b) result(A)
 
   real(kind=dp), intent(in) :: u(3), v(3), b(3)

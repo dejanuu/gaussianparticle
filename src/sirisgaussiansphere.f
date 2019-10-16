@@ -105,6 +105,58 @@ end subroutine csini
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Random particle orientation using Euler angles.
+! Version: 2015-02-05
+subroutine pranor(XN,NT,XN0,NT0,nnod,ntri)
+
+  real(kind=dp), dimension(:,:), intent(out) :: XN
+  real(kind=dp), dimension(:,:), intent(out) :: NT
+  real(kind=dp), dimension(:,:), intent(in) :: XN0
+  real(kind=dp), dimension(:,:), intent(in) :: NT0
+  integer, intent(in) :: nnod, ntri
+  integer :: j1, j2
+  real(kind=dp) :: gamma, alpha, ran2
+  real(kind=dp), dimension(3) :: X, CEU, SEU
+
+  ! Euler angles in the laboratory reference frame (K) for
+  ! expressing a vector given in K in the particle reference
+  ! frame (K'):
+  call random_number(ran2)
+  gamma=2.0_dp*pi*ran2
+  alpha=2.0_dp*pi*ran2
+  CEU(1)=cos(gamma)
+  CEU(2)=1.0_dp-2.0_dp*ran2
+  CEU(3)=cos(alpha)
+  SEU(1)=sin(gamma)
+  SEU(2)=sqrt(1.0_dp-CEU(2)**2)
+  SEU(3)=sin(alpha)
+
+  ! Nodes:
+  do j1 = 1, nnod
+    do j2 = 1, 3
+      X(j2)=XN0(j1,j2)
+    end do
+    call vproteut(X,CEU,SEU)
+    do j2 = 1, 3
+      XN(j1,j2)=X(j2)
+    end do
+  end do
+
+  ! Normals:
+  do j1 = 1, ntri
+    do j2 = 1, 3
+      X(j2)=NT0(j1,j2)
+    end do
+    call vproteut(X,CEU,SEU)
+    do j2 = 1, 3
+      NT(j1,j2)=X(j2)
+    end do
+  end do
+
+end subroutine pranor
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! 
 subroutine save_idl(fbn,XT,IT,nnod,ntri)
 
@@ -112,7 +164,7 @@ subroutine save_idl(fbn,XT,IT,nnod,ntri)
   real(kind=dp), dimension(:,:), intent(in) :: XT
   integer, dimension(:,:), intent(in) :: IT
   integer, intent(in) :: nnod, ntri
-  integer :: j1, j2, fu
+  integer :: j1, fu
   character(len=file_name_length) :: fn
 
   ! File name
@@ -180,7 +232,7 @@ subroutine save_off(fbn,XT,IT,nnod,ntri)
   real(kind=dp), dimension(:,:), intent(in) :: XT
   integer, dimension(:,:), intent(in) :: IT
   integer, intent(in) :: nnod, ntri
-  integer :: j1, j2, fu
+  integer :: j1, fu
   character(len=file_name_length) :: fn
 
   ! File name
@@ -213,7 +265,7 @@ subroutine save_vtk(fbn,XT,IT,nnod,ntri)
   real(kind=dp), dimension(:,:), intent(in) :: XT
   integer, dimension(:,:), intent(in) :: IT
   integer, intent(in) :: nnod, ntri
-  integer :: j1, j2, fu
+  integer :: j1, fu
   character(len=file_name_length) :: fn
 
   ! File name
@@ -257,7 +309,7 @@ subroutine plmg(PLM,x,lmax,m)
   complex(kind=dp), dimension(0:lmax,0:lmax,-2:2) :: PLMM
   complex(kind=dp) :: i
 
-  i=cmplx(0.0_dp,1.0_dp)
+  i=cmplx(0.0_dp,1.0_dp,dp)
 
   ! Check degree, orders, and argument:
   if (lmax < 0) stop 'Trouble in PLMG: degree negative.'
@@ -289,7 +341,7 @@ subroutine plmmg(PLMM,x,lmax,m1,m2)
   integer :: l, m0, m12, p12
   complex(kind=dp) :: i
 
-  i=cmplx(0.0_dp,1.0_dp)
+  i=cmplx(0.0_dp,1.0_dp,dp)
 
   ! Check degree, orders, and argument:
   if (lmax < 0) stop 'Trouble in PLMMG: degree negative.'
