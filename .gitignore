@@ -1,10 +1,11 @@
-dev/
-mod/*.mod
-lib/*.o
-lib/*.a
+dev/*
+mod/*
+lib/*
 */*.exe
 GS/*.out
 GS/*.idf
 GS/*.vtk
 GS/*.off
 GS/GS
+single-particle/singleparticle
+single-particle/*.out
