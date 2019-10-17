@@ -38,7 +38,7 @@ Option 2: gfortran compiling with one command:
 Run from command line. Give the name of the input file as command line argument, e.g.,
 
 	cd single-particle
-	./singleparticle single-particle-input.in
+	./singleparticle single-particle-input.in [diffuse-scatterer-scattering-matrix-input-name]
 
 The different parameter options are commented in the example input file.
 
