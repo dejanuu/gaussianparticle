@@ -9,3 +9,5 @@ GS/*.off
 GS/GS
 single-particle/singleparticle
 single-particle/*.out
+multi-particle/*
+single-two-layer-particle/*
