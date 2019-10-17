@@ -6,6 +6,7 @@ Department of Physics, University of Helsinki, Finland
 
 ## Main programs
 
+- singleparticle Geometrical optics with diffuse scatterers computations for a single Gaussian-random-sphere particle.
 - GS Gaussian spheres for creating the discretized meshes for Gaussian sphere particles.
 
 ## Compiling, general
@@ -15,6 +16,31 @@ The framework is divided into Fortran module files that can be gathered into a s
 There will be a Makefile provided. In general, with GNU gfortran, the following options will are needed/recommended when compiling:
 
 	-ffree-form -std=f2008
+
+### singleparticle Geometric optics computations
+
+SIRIS4 Geometric optics with diffuse scatterers computations 
+
+If pubishing or distributing results that use this code, please reference to: Muinonen K, Nousiainen T, Fast P, Lumme K, and Peltoniemi JI (1996). Light scattering by Gaussian random particles: Ray optics approximation. Journal of Quantitative Spectroscopy & Radiative Transfer 55(5), 577–601. DOI:10.1016/0022-4073(96)00003-9.
+
+#### Compiling
+
+Option 1: use Makefile
+
+	make GS
+
+Option 2: gfortran compiling with one command:
+
+	gfortran -ffree-form -std=f2008 -o GS/GS src/sirisconstants.f src/sirismath.f src/sirisgeometry.f src/sirisgaussiansphere.f GS/GS-main.f
+
+#### Usage
+
+Run from command line. Give the name of the input file as command line argument, e.g.,
+
+	cd GS
+	./GS GS-input.in
+
+The different parameter options are commented in the example input file.
 
 ### GS Gaussian spheres
 
@@ -40,5 +66,3 @@ Run from command line. Give the name of the input file as command line argument,
 	./GS GS-input.in
 
 The different parameter options are commented in the example input file.
-
-
