@@ -668,6 +668,7 @@ subroutine pmatrix1_multi(P,np)
   else
     call get_command_argument(2,infile)
   endif
+  write(output_unit, '(A,A,A)') "Reading diffuse particle scattering matrix input from file '", trim(infile), "'"
   open(newunit=fu, file=trim(infile), status='old', action='read')
 
   do j1 = 0, np
@@ -710,6 +711,7 @@ subroutine pmatrix1_single(P,np)
   else
     call get_command_argument(2,infile)
   endif
+  write(output_unit, '(A,A,A)') "Reading diffuse particle scattering matrix input from file '", trim(infile), "'"
   open(newunit=fu, file=trim(infile), status='old', action='read')
 
   do j1 = 0, np

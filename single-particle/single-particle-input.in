@@ -1,5 +1,5 @@
-10000     ! number of rays
-100       ! number of sample particles
+1000      ! number of rays
+10        ! number of sample particles
 1.0d-4    ! Minimum relative flux
 21        ! Max internal chord
 21        ! Max external chord
@@ -11,8 +11,8 @@
 1.5E+000  ! wavelength in micrometers
 200.0     ! Mean radius (in micrometers)
 1         ! run identification number
-0         ! Internal medium: 1=yes
-2         ! Scattering matrix: input(1), Rayleigh(2)
+1         ! Internal medium: 1=yes
+1         ! Scattering matrix: input(1), Rayleigh(2)
 0.549069  ! Internal medium: single-scattering albedo
 53.33     ! Internal medium: mean free path (in micrometers)
 0.5       ! Diffuse-medium asymmetry parameter (internal)

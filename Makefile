@@ -25,15 +25,15 @@ LIBFILENAMES = sirisconstants sirismath sirismaterial sirisnumint sirisgeometry 
 all : directories GS singleparticle
 .PHONY : all clean directories
 
-singleparticle : single-particle/single-particle-main.f siris4lib
+singleparticle : directories single-particle/single-particle-main.f siris4lib
 	$(COMP) $(FOPT) -o single-particle/singleparticle -J mod -L lib single-particle/single-particle-main.f -l siris4 
 
-GS : GS/GS-main.f siris4lib
+GS : directories GS/GS-main.f siris4lib
 	$(COMP) $(FOPT) -o GS/GS -J mod -L lib GS/GS-main.f -l siris4 
 
-siris4lib : lib/libsiris4.a
+siris4lib : directories lib/libsiris4.a
 	
-lib/libsiris4.a : $(addprefix lib/,$(addsuffix .o,$(LIBFILENAMES)))
+lib/libsiris4.a : $(addprefix lib/,$(addsuffix .o,$(LIBFILENAMES))) 
 	ar crv -s lib/libsiris4.a $^
 
 lib/%.o : src/%.f
