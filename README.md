@@ -19,7 +19,7 @@ There will be a Makefile provided. In general, with GNU gfortran, the following 
 
 ### singleparticle Geometric optics computations
 
-SIRIS4 Geometric optics with diffuse scatterers computations for a single Gaussian-random-sphere particle. Produces the scattering matrix and efficiences for the particle or the averaged versions over sample of these particles.
+SIRIS4 Geometric optics with diffuse scatterers computations for a single Gaussian-random-sphere particle. The SIRIS4-version includes the treatment of inhomogeneous waves in absorbing media. Produces the scattering matrix and efficiences for the particle or the averaged versions over sample of these particles.
 
 If pubishing or distributing results that use this code, please reference both to: Muinonen K, Nousiainen T, Lindqvist H, Muñoz O, and Videen G (2009). Light scattering by Gaussian particles with internal inclusions and roughened surfaces using ray optics. Journal of Quantitative Spectroscopy & Radiative Transfer 110, 1628–1639. DOI:[10.1016/j.jqsrt.2009.03.012](https://doi.org/10.1016/j.jqsrt.2009.03.012), and to Lindqvist H, Martikainen J, Räbinä J, Penttilä A, and Muinonen K (2018). Ray optics in absorbing media with application to ice crystals at near-infrared wavelengths. Journal of Quantitative Spectroscopy & Radiative Transfer 217, 329–337. DOI:[10.1016/j.jqsrt.2018.06.005](https://doi.org/10.1016/j.jqsrt.2018.06.005).
 
