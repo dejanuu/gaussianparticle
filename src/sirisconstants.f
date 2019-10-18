@@ -12,6 +12,7 @@ MODULE SIRISCONSTANTS
   public
   
   integer, parameter :: dp = REAL64
+  integer, parameter :: qp = REAL128
   
   real(kind=dp), parameter :: pi = 3.1415926535897932_dp
   
