@@ -31,14 +31,14 @@ Option 1: use Makefile
 
 Option 2: gfortran compiling with one command:
 
-	gfortran -ffree-form -std=f2008 -o single-particle/singleparticle src/sirisconstants.f src/sirismath.f src/sirismaterial.f src/sirisnumint.f src/sirisgeometry.f src/sirisgaussiansphere.f src/sirisradtrans.f src/sirisray.f single-particle/single-particle-main.f
+	gfortran -ffree-form -std=f2008 -o single-particle/siris1p src/sirisconstants.f src/sirismath.f src/sirismaterial.f src/sirisnumint.f src/sirisgeometry.f src/sirisgaussiansphere.f src/sirisradtrans.f src/sirisray.f single-particle/single-particle-main.f
 
 #### Usage
 
 Run from command line. Give the name of the input file as command line argument, e.g.,
 
 	cd single-particle
-	./singleparticle single-particle-input.in [diffuse-scatterer-scattering-matrix-input-name]
+	./siris1p single-particle-input.in [diffuse-scatterer-scattering-matrix-input-name]
 
 The different parameter options are commented in the example input file.
 
