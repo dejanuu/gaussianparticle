@@ -37,7 +37,7 @@ subroutine ehk(EL,ER,HL,KE)
   integer :: j1
 
   do j1 = 1, 3
-    EL(j1)=real(HL(j1),dp)
+    EL(j1)=real(HL(j1))
   end do
   call provecn(ER,KE,EL)
   call provecn(EL,ER,KE)

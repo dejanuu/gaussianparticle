@@ -10,17 +10,10 @@ PROGRAM singleparticle
   
   integer  :: nbin, j, jray, jsub, jbox, pout, nray, seed1, &
     ntri,j1,j2,totref,lmax, npar,pin,pinmax,poutmax,ntr,nis, savenum, &
-    l1, flgin, np, nrn, pflg,ncm, nnod, nsub, fu
+    l1, flgin, np, nrn, pflg,ncm, nnod, nsub, fu, run_num
   integer, dimension(50) :: PBOX, NISBOX
-  integer :: run_num
+  integer, dimension(:,:), pointer :: IT
   logical :: ignabs = .false.
-  real(kind=dp), dimension(4,4) :: FOUT, FIN  
-  real(kind=dp), dimension(2,50) :: MABOX  
-  real(kind=dp), dimension(3,50) :: KEBOX, KFBOX, XBOX
-  real(kind=dp), dimension(361) :: XP1
-  real(kind=dp), dimension(361,4,4) :: S, YP1, YP21
-  real(kind=dp), dimension(0:360,4,4) :: P1
-  real(kind=dp), dimension(4,4,50) :: FBOX
   real(kind=dp):: wrayh, wraym, norm, ran2, mui, nui, phii, sphii, cphii, &
     rmax, r0, phi0, qsca,qabs,qin,qout,qis,qbox,abscf,len,lenabs,kekf,beta,nie, &
     nk,Fstop,bin,bin0,norml,wray, wavelen, xa, m2real, &
@@ -28,21 +21,25 @@ PROGRAM singleparticle
     whg1, pmx1, dthe, pnorm1, radius, mmed, sig, nuc, rho, cs2d, cs4d, &
     ell,fintmp
   real(kind=dp), dimension(2):: MA0, MAOUT, MAIN
-  real(kind=dp), dimension(0:1000) :: CSRN1
-  real(kind=dp), dimension(0:256,0:256) :: ACF, BCF, SCFSTD
+  real(kind=dp), dimension(3) :: KEOUT, KFOUT, X, ELOUT, EROUT, Y, N, KEIN, KFIN, &
+    ELIN, ERIN
   real(kind=dp), dimension(0:256) :: CSCF
+  real(kind=dp), dimension(361) :: XP1
+  real(kind=dp), dimension(:), allocatable :: CSRN1
   real(kind=dp), dimension(:), pointer :: MUN, PHIN
-  real(kind=dp), dimension(130000,3) :: XN, XN0
-  real(kind=dp), dimension(260000,3) :: NT, NT0
-  integer, dimension(:,:), pointer :: IT
+  real(kind=dp), dimension(2,50) :: MABOX  
+  real(kind=dp), dimension(3,50) :: KEBOX, KFBOX, XBOX
+  real(kind=dp), dimension(4,4) :: FOUT, FIN  
+  real(kind=dp), dimension(0:256,0:256) :: ACF, BCF, SCFSTD
+  real(kind=dp), dimension(:,:), allocatable :: XN, XN0, NT, NT0
+  real(kind=dp), dimension(4,4,50) :: FBOX
+  real(kind=dp), dimension(361,4,4) :: S, YP1, YP21
+  real(kind=dp), dimension(0:360,4,4) :: P1
   complex(kind=dp):: m1,m2
-  real(kind=dp), dimension(3) :: KEOUT, KFOUT, X, ELOUT, EROUT, Y, N, KEIN, KFIN, ELIN, ERIN
   complex(kind=dp), dimension(3) :: HLOUT, HROUT, HLIN, HRIN
   complex(kind=dp), dimension(3,50) :: HLBOX, HRBOX    
-  character(len=file_name_length) :: fname 
-  character(len=file_name_length) :: fname2     
   character(len=1) :: inhmg
-  character(len=file_name_length) :: infile
+  character(len=file_name_length) :: fname, fname2, infile
 
   ! Read inputs from file:
   if(command_argument_count() == 0) then
@@ -92,7 +89,7 @@ PROGRAM singleparticle
   call init_random(seed1)
 
   nsub=nray/npar
-  if (nsub*npar /= nray) stop 'Trouble in GEO: ray/particle number mismatch.'
+  if(nsub*npar /= nray) stop 'Trouble in GEO: ray/particle number mismatch.'
 
   ! Initialization of the Gaussian random sphere:
   beta=sqrt(log(sig**2+1.0_dp))
@@ -104,8 +101,8 @@ PROGRAM singleparticle
   rho=beta/ell
 
   ! Refractive indices:
-  m2 = cmplx(m2real, m2imag,dp)
-  m1 = cmplx(mmed, 0.0_dp,dp)   ! ref index of the medium
+  m2 = cmplx(m2real, m2imag, dp)
+  m1 = cmplx(mmed, 0.0_dp, dp)   ! ref index of the medium
 
   lin=lin/radius
 
@@ -117,6 +114,7 @@ PROGRAM singleparticle
 
   ! Discretization:
   call TRIDS(MUN,PHIN,IT,nnod,ntri,ntr)
+  allocate(XN(nnod,3), XN0(nnod,3), NT(ntri,3), NT0(ntri,3))
 
   ! Initialize:
   qsca = 0.0_dp
@@ -125,10 +123,11 @@ PROGRAM singleparticle
   qout = 0.0_dp
   qis = 0.0_dp
   qbox = 0.0_dp
-  S = 0.0
+  S = 0.0_dp
 
   ! Initialize the scattering phase matrices:
   dthe=pi/np
+  allocate(CSRN1(0:nrn))
   if (pflg == 1) then
     call pmatrix1_single(P1,np)
     call psplivi(P1,CSRN1,XP1,YP1,YP21,pnorm1,dthe,nrn,np,ncm)
@@ -149,15 +148,18 @@ PROGRAM singleparticle
   wraym = 0.0_dp ! rays that miss
 
   call sgscf(ACF,BCF,SCFSTD,lmax)
-
   call rgstd(XN0,NT0,MUN,PHIN,ACF,BCF,rmax,beta,IT,nnod,ntri,lmax)
 
 100 if(jbox == 0) then
     pout = 0
     jray = jray + 1
 
-    ! Normalizations:
+    ! Print status
+    if(mod(jray,5000) == 0) then
+      write(output_unit,'(A19,I0,A1,I0)') " computing at ray ", jray, "/", nray
+    end if
 
+    ! Normalizations:
     if(jray > nray) then ! number of rays done --> quit program
       norm = nray/wrayh
       qsca = qsca*norm
@@ -269,9 +271,8 @@ PROGRAM singleparticle
     ! Generation of the spherical harmonics coefficients for the
     ! logradius. Discretization and random orientation of the Gaussian
     ! sample sphere:
-
     jsub=jsub+1
-    if (jsub > nsub) then
+    if(jsub > nsub) then
       call sgscf(ACF,BCF,SCFSTD,lmax)
       call rgstd(XN0,NT0,MUN,PHIN,ACF,BCF,rmax,beta,IT,nnod,ntri,lmax)
       jsub=1
@@ -309,7 +310,7 @@ PROGRAM singleparticle
 
     ! RAYGETD extracts one ray from the pile of external rays. ISTRI 
     ! determines whether that ray further interacts with the particle 
-    ! surface. If it doesnt, SCATTER stores the ray among other scattered 
+    ! surface. If it doesn't, SCATTER stores the ray among other scattered 
     ! rays.
     call raygetd1c(FBOX,KEBOX,KFBOX,HLBOX,HRBOX,XBOX,MABOX,PBOX,NISBOX,FOUT, &
       KEOUT,KFOUT,HLOUT,HROUT,X,MAOUT,pout,nis,jbox)
@@ -323,6 +324,7 @@ PROGRAM singleparticle
     call prosca(nk,N,KEOUT)
 
   end if
+
   ! Scattering or external incidence:
   if (nk >= 0.0_dp) then ! jos kyseessa sisaltapain ulostulo
     norml = 0.0_dp
@@ -392,7 +394,7 @@ PROGRAM singleparticle
   ! Mueller matrices, wave vectors, and parallel/perpendicular coordinate axes.
   Y = X
 
-  nie = -1.0
+  nie = -1.0_dp
   call istri(Y,KEIN,N,XN,NT,IT,nk,len,ntri,nis,nie)
   if(nis == 0) then ! tahan ei kai pitais paatya mitaan? jos paatyy, niin kolmioinnissa vika. (tjs.)
     qis = qis+FIN(1,1)
