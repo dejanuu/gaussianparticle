@@ -102,15 +102,14 @@ subroutine splint(xa,ya,y2a,n,x,y)
 
   klo=1
   khi=n
-1 if (khi-klo > 1) then
+  do while(khi-klo > 1)
     k=(khi+klo)/2
     if(xa(k) > x) then
       khi=k
     else
       klo=k
     endif
-    goto 1
-  endif
+  end do
   h=xa(khi)-xa(klo)
   if(h == 0.0_dp) stop 'Trouble in SPLINT: bad xa input.'
   a=(xa(khi)-x)/h

@@ -27,6 +27,25 @@ contains
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Real-valued basis vectors from complex-valued basis vectors.
+! Version: 2018 September 13
+subroutine ehk(EL,ER,HL,KE)
+      
+  real(kind=dp), dimension(3), intent(out) :: EL, ER
+  complex(kind=dp), dimension(3), intent(in) :: HL
+  real(kind=dp), dimension(3), intent(in) :: KE
+  integer :: j1
+
+  do j1 = 1, 3
+    EL(j1)=real(HL(j1),dp)
+  end do
+  call provecn(ER,KE,EL)
+  call provecn(EL,ER,KE)
+
+end subroutine ehk
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! 
 real(kind=dp) function factrl(n)
 
@@ -114,6 +133,36 @@ subroutine init_random(seed)
   deallocate(ranseed)
 
 end subroutine init_random
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Kepler's equation solved by Newton's method. Version 2008-04-09.
+subroutine kepnm(ea,e,ma)
+
+  real(kind=dp), intent(out) :: ea
+  real(kind=dp), intent(in) :: e, ma
+  real(kind=dp) :: f, f1, f2, f3, dea
+  real(kind=dp), parameter :: tol=1e-12_dp
+
+  ! Initialize:
+  ea=ma+0.85_dp*e*sign(1.0_dp,sin(ma-int(ma/(2.0_dp*pi))*2.0_dp*pi))
+  dea=1e12_dp
+
+  ! Iterate:
+  do while(abs(dea) < tol)
+    f3=e*cos(ea)
+    f2=e*sin(ea)
+    f1=1.0_dp-f3
+    f=ea-f2-ma
+
+    dea=-f/f1
+    dea=-f/(f1+f2*dea/2.0_dp)
+    dea=-f/(f1+f2*dea/2.0_dp+f3*dea**2/6.0_dp)
+
+    ea=ea+dea
+  end do
+    
+end subroutine kepnm
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
