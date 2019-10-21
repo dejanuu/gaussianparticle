@@ -369,7 +369,7 @@ PROGRAM singletwolayer
   pout = pout+1
   pin = pout
   nis2 = nis
-  call incide(FOUT,KEOUT,KFOUT,HLOUT,HROUT,MAOUT, &
+  call incide2l(FOUT,KEOUT,KFOUT,HLOUT,HROUT,MAOUT, &
               FIN,KEIN,KFIN,HLIN,HRIN,MAIN,&
               N1,m0,m1,totref)
 
@@ -491,7 +491,7 @@ PROGRAM singletwolayer
       goto 320
     endif
 
-    call incide(FIN,KEIN,KFIN,HLIN,HRIN,MAIN, &
+    call incide2l(FIN,KEIN,KFIN,HLIN,HRIN,MAIN, &
                 FOUT,KEOUT,KFOUT,HLOUT,HROUT,MAOUT, &
                 N1,m1,m0,totref)
 
@@ -558,7 +558,7 @@ PROGRAM singletwolayer
       goto 320
     end if
 
-    call incide(FIN,KEIN,KFIN,HLIN,HRIN,MAIN, &
+    call incide2l(FIN,KEIN,KFIN,HLIN,HRIN,MAIN, &
                 FCORE,KECORE,KFCORE,HLCORE,HRCORE,MACORE, &
                 N2,m1,m2,totref)
 
@@ -634,7 +634,7 @@ PROGRAM singletwolayer
       goto 320
     end if
 
-    call incide(FCORE,KECORE,KFCORE,HLCORE,HRCORE,MACORE, &
+    call incide2l(FCORE,KECORE,KFCORE,HLCORE,HRCORE,MACORE, &
                 FIN,KEIN,KFIN,HLIN,HRIN,MAIN, &
                 N2,m2,m1,totref)
 

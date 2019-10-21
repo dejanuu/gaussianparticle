@@ -544,9 +544,9 @@ subroutine incide2l(F1,KE1,KF1,HL1,HR1,MA1,F2,KE2,KF2,HL2,HR2,MA2, &
 
     ! Complex unit vectors in the plane of incidence and
     ! rotation of the input Mueller matrix:
-    call proveccn(HRI,KCI,NC)
-    call proveccn(HLI,HRI,KCI)
-    call frotlc(F1,FI,HLI,HRI,HLI0,HRI0)
+    call provecn(HRI,KCI,NC)
+    call provecn(HLI,HRI,KCI)
+    call frotlc2l(F1,FI,HLI,HRI,HLI0,HRI0)
 
     ! Unit direction vectors for the reflected and refracted ray:
     call snel2l(KEI,KFI,MAI,KE1,KF1,MA1,KE2,KF2,MA2,N,T2, &
@@ -559,8 +559,8 @@ subroutine incide2l(F1,KE1,KF1,HL1,HR1,MA1,F2,KE2,KF2,HL2,HR2,MA2, &
       KC1 = cmplx(MA1(1)*KE1, 0.0_dp,dp)
     end if
 
-    call proveccn(HR1,KC1,NC)
-    call proveccn(HL1,HR1,KC1)
+    call provecn(HR1,KC1,NC)
+    call provecn(HL1,HR1,KC1)
 
     ! Total Fresnel reflection, new reflected Mueller matrix:
     if(abs(st) >= 1.0_dp) then
@@ -607,8 +607,8 @@ subroutine incide2l(F1,KE1,KF1,HL1,HR1,MA1,F2,KE2,KF2,HL2,HR2,MA2, &
       KC2 = cmplx(MA2(1)*KE2, 0.0_dp,dp)
     end if
 
-    call proveccn(HR2,KC2,NC)
-    call proveccn(HL2,HR2,KC2)
+    call provecn(HR2,KC2,NC)
+    call provecn(HL2,HR2,KC2)
 
     if(totref0) then
       !!MUISTA KERÄTÄ ENERGIA TALTEEN JOSSAIN
@@ -625,9 +625,9 @@ subroutine incide2l(F1,KE1,KF1,HL1,HR1,MA1,F2,KE2,KF2,HL2,HR2,MA2, &
 
     ! Complex unit vectors in the plane of incidence and
     ! rotation of the input Mueller matrix:
-    call proveccn(HRI,KCI,NC)   
-    call proveccn(HLI,HRI,KCI)
-    call frotlc(F1,FI,HLI,HRI,HLI0,HRI0)
+    call provecn(HRI,KCI,NC)   
+    call provecn(HLI,HRI,KCI)
+    call frotlc2l(F1,FI,HLI,HRI,HLI0,HRI0)
 
     ! Unit direction vectors for the reflected and refracted ray:
     call snel2l(KEI,KFI,MAI,KE1,KF1,MA1,KE2,KF2,MA2,N,T2, &
@@ -637,8 +637,8 @@ subroutine incide2l(F1,KE1,KF1,HL1,HR1,MA1,F2,KE2,KF2,HL2,HR2,MA2, &
     call prosca(kekf1,KE1,KF1)
     if(abs(kekf1) < 0.9999999_dp) then
       KC1 = cmplx(MA1(1)*KE1, MA1(2)*KF1,dp)
-      call proveccn(HR1,KC1,NC)
-      call proveccn(HL1,HR1,KC1)
+      call provecn(HR1,KC1,NC)
+      call provecn(HL1,HR1,KC1)
     else
       HL1 = -HLI0
       HR1 = HRI0
@@ -648,8 +648,8 @@ subroutine incide2l(F1,KE1,KF1,HL1,HR1,MA1,F2,KE2,KF2,HL2,HR2,MA2, &
     call prosca(kekf2,KE2,KF2)
     if (abs(kekf2) < 0.9999999_dp) then
       KC2 = cmplx(MA2(1)*KE2, MA2(2)*KF2,dp)
-      call proveccn(HR2,KC2,NC)
-      call proveccn(HL2,HR2,KC2)
+      call provecn(HR2,KC2,NC)
+      call provecn(HL2,HR2,KC2)
     else
       HL2 = HLI0
       HR2 = HRI0
