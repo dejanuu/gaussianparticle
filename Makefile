@@ -6,13 +6,13 @@ COMP ?= gfortran
 FOPT = -ffree-form -std=f2008
 # Optional choices
 # For developing
-FOPT += -fimplicit-none -fcheck=bounds,pointer -Wall -Wno-maybe-uninitialized
+#FOPT += -fimplicit-none -fcheck=bounds,pointer -Wall -Wno-maybe-uninitialized
 # Minor optimization
-FOPT += -O1
+#FOPT += -O1
 # Major optimization
-#FOPT += -Ofast -mtune=native
+FOPT += -Ofast -mtune=native -ffpe-summary=none
 # For debugging
-#FOPT += -g -ffpe-trap=invalid,zero,overflow,underflow
+#FOPT += -g -fbacktrace -ffpe-trap=invalid,zero,overflow,underflow
 
 ###############################################################################
 
