@@ -2,12 +2,15 @@ dev/*
 mod/*
 lib/*
 */*.exe
+src/*.mod
+src/*.o
 GS/*.out
 GS/*.idf
 GS/*.vtk
 GS/*.off
 GS/GS
-single-particle/singleparticle
+single-particle/siris1p
 single-particle/*.out
+single-two-layer-particle/siris2l
+single-two-layer-particle/*.out
 multi-particle/*
-single-two-layer-particle/*
