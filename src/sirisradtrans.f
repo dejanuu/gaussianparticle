@@ -133,7 +133,7 @@ subroutine frotl(F,c2psi,s2psi)
     q = c2psi*F(2,j1)+s2psi*F(3,j1)
     F(3,j1) = -s2psi*F(2,j1)+c2psi*F(3,j1)
     F(2,j1) = q
-end do
+  end do
 
 end subroutine frotl
 
