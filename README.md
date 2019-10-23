@@ -6,8 +6,8 @@ Department of Physics, University of Helsinki, Finland
 
 ## Main programs
 
-- siris1p Geometrical optics with diffuse scatterers computations for a single Gaussian-random-sphere particle.
-- siris2l Geometrical optics with diffuse scatterers computations for a single Gaussian-random-sphere particle having core-mantle geometry.
+- siris1p Geometric optics with diffuse scatterers computations for a single Gaussian-random-sphere particle.
+- siris2l Geometric optics with diffuse scatterers computations for a single Gaussian-random-sphere particle having core-mantle geometry.
 - GS Gaussian spheres for creating the discretized meshes for Gaussian sphere particles.
 
 ## Compiling, general
