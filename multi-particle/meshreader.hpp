@@ -23,11 +23,11 @@ inline bool hasEnding(std::string const &fullString, std::string const &ending) 
 
 class MeshReader{
     public:
-        static bool read_file(std::string fname, std::vector<Point>& points, std::list<Triangle>& triangles, std::vector<std::tuple<int, int>>& material_inds){
+        static bool read_file(std::string fname, std::vector<Point>& points, std::list<Triangle>& triangles, std::vector<std::tuple<int, int>>& material_inds, bool centralize){
             std::cout << create_heading(std::string("READ MESH FROM: ")+fname,HEADINGS::HEADING) << std::endl;
             try{
                 if(hasEnding(fname,".off")){
-                    OFFReader::read_file(fname,points,triangles,material_inds);
+                    OFFReader::read_file(fname,points,triangles,material_inds,centralize);
                 }else{
                     throw std::invalid_argument("File format not supported"); 
                 } 

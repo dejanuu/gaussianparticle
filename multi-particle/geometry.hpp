@@ -50,7 +50,7 @@ class Geometry{
             //std::cout << "diffuse" << std::endl;
             //std::cout << stack_diffuse.back().F[0] << ", " << stack_diffuse.back().F[1] << ", " << stack_diffuse.back().F[2] << std::endl;
             //std::cout << stack_diffuse.back().K[0] << ", " << stack_diffuse.back().K[1] << ", " << stack_diffuse.back().K[2] << std::endl;
-            double* AA = stack_diffuse.back().K;
+            //double* AA = stack_diffuse.back().K;
             if(intersection){
                 stack_diffuse.back().property = RAYPROPERTY::SCATTERED;
                 const Point* p =  boost::get<Point>(&(intersection->first));

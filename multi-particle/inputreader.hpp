@@ -6,19 +6,37 @@
 #include <memory>
 #include <fstream>
 #include <sstream>
-
+#include <algorithm>
 
 class InputReader{
     public:
-        InputReader(std::string fname){
+        InputReader(int argc, char* argv[]){
             std::string line;
-            std::ifstream input(fname.c_str());
+            std::ifstream input(argv[1]);
             while(std::getline(input,line)){
                 int pos = line.find(" "); 
                 std::string a = line.substr(0,pos);     
                 std::string b = line.substr(pos); 
                 mapping.insert(std::pair<std::string,std::string>(a,b));
             }
+
+            if(argc>2){
+                std::cout << "overriding input parameters from terminal" << std::endl;
+                for(int i=2;i<argc;i=i+2){
+                    std::string parameter = std::string(argv[i]);
+                    parameter.erase(std::remove(parameter.begin(), parameter.end(), '-'), parameter.end());
+                    std::string value = std::string(argv[i+1]);
+                    std::cout << parameter << " " << value << std::endl;
+                    auto it = mapping.find(parameter); 
+                    if(it == mapping.end()){
+                        mapping.insert(std::pair<std::string,std::string>(parameter,value));
+                    } else {
+                        it->second = value;
+                    }
+                }
+            }
+
+
             input.close();
         }
 

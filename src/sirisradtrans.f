@@ -301,6 +301,9 @@ subroutine incide(F1,KE1,KF1,HL1,HR1,MA1,F2,KE2,KF2,HL2,HR2,MA2, &
   complex(kind=dp), dimension(3) :: HLI, HRI, HLI0, HRI0, &
     NC, KC1, KC2, KCI
 
+
+
+
   ! Relative refractive index:
   m = m2/m1
   mre = real(m,dp)
@@ -456,7 +459,7 @@ end subroutine incide
 ! computes the reflected (subscript 1) and refracted (subscript 2) 
 ! Mueller matrices and ray coordinate systems.
 subroutine incide2l(F1,KE1,KF1,HL1,HR1,MA1,F2,KE2,KF2,HL2,HR2,MA2, &
-                        N,m1,m2,totref)
+                        N,m1,m2,totref,preventTR_in)
 
   real(kind=dp), dimension(4,4), intent(inout) :: F1
   real(kind=dp), dimension(3), intent(inout) :: KE1, KF1
@@ -480,6 +483,13 @@ subroutine incide2l(F1,KE1,KF1,HL1,HR1,MA1,F2,KE2,KF2,HL2,HR2,MA2, &
   complex(kind=dp), dimension(3) :: HLI, HRI, HLI0, HRI0, &
     NC, KC1, KC2, KCI
   logical :: totref0
+   integer :: preventTR
+   integer,optional :: preventTR_in
+    if(present(preventTR_in))then
+        preventTR=preventTR_in
+    else
+        preventTR=0
+    endif
 
   totref=0
   dm=abs(m1-m2)
@@ -550,7 +560,7 @@ subroutine incide2l(F1,KE1,KF1,HL1,HR1,MA1,F2,KE2,KF2,HL2,HR2,MA2, &
 
     ! Unit direction vectors for the reflected and refracted ray:
     call snel2l(KEI,KFI,MAI,KE1,KF1,MA1,KE2,KF2,MA2,N,T2, &
-            fki,fkt,nke,nkf,m1,m2,st,totref0)
+            fki,fkt,nke,nkf,m1,m2,st,totref0,preventTR)
 
     ! Complex unit vectors of the reflected rays:
     if(abs(MA1(2)) >= ktol) then
@@ -1435,7 +1445,7 @@ end subroutine snel
 ! waves (KE2, KF2).
 ! Version for 2-layer code
 subroutine snel2l(KEI,KFI,MAI,KE1,KF1,MA1,KE2,KF2,MA2,N,T2, &
-                     fki,fkt,nke,nkf,m1,m2,sthe,totref)
+                     fki,fkt,nke,nkf,m1,m2,sthe,totref,preventTR_in)
 
   real(kind=dp), dimension(3), intent(in) :: KEI, KFI 
   real(kind=dp), dimension(2), intent(in) :: MAI
@@ -1454,6 +1464,14 @@ subroutine snel2l(KEI,KFI,MAI,KE1,KF1,MA1,KE2,KF2,MA2,N,T2, &
   integer :: j1
   real(kind=dp) :: Na, Nb, norm1, norm2
   real(kind=dp), dimension(3) :: T3
+  integer :: preventTR
+  integer,optional :: preventTR_in
+  if(present(preventTR_in))then
+     preventTR=preventTR_in
+  else
+     preventTR=0
+  endif
+
 
   totref = .false.
 
@@ -1590,9 +1608,11 @@ subroutine snel2l(KEI,KFI,MAI,KE1,KF1,MA1,KE2,KF2,MA2,N,T2, &
     KF2 = KE2
   end if
 
-  if(abs(n2-sqrt(0.5_dp*(q2-sqrt(q1)))) < abs(n2-sqrt(0.5_dp*(q2+sqrt(q1))))) then
-    totref =.true.
+  if(real(m1,kind=dp)*dd/real(m2,kind=dp)>1.0_dp .and. preventTR==1) then
+      !write(6,*) "totref"
+      totref =.true.
   endif
+
 
   ! Preparation for Fresnel coefficients:
   call prosca(nke2,N,KE2)

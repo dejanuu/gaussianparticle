@@ -12,7 +12,7 @@ class RNG{
     public:
         //valgrind doesn't like this
         //RNG(int seed) : _seed{seed<=0 ? 1 : _seed}, dist{0.0,1.0}, twister{_seed}{
-        RNG(int seed) : _seed{seed<=0 ? (int)std::random_device()() : seed}, dist{0.0,1.0}, twister{_seed}{
+        RNG(int seed) : _seed{seed==0 ? (int)std::random_device()() : seed}, dist{0.0,1.0}, twister{_seed}{
             std::cout << "Using seed: " << _seed << std::endl;
         };
     
@@ -25,6 +25,10 @@ class RNG{
             std::generate_n(vec.begin(), num_items, rng);
             //std::cout << vec[0] << std::endl;
         }
+
+	inline int get_seed(){
+            return _seed;
+	}
 
     private:
         int _seed;

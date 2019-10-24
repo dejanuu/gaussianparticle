@@ -6,6 +6,8 @@
 #include "inputreader.hpp"
 #include "definitions.hpp"
 #include "misc.hpp"
+#include "distribution.hpp"
+
 
 #include <sstream>
 #include <iostream>
@@ -38,7 +40,7 @@ struct DiffuseMaterial
     double* csrn= nullptr;
     double* xp = nullptr;
     double* coeffs = nullptr;
-    int nrn = 100;
+    int nrn = 1000;
     int reserved_block = (nrn+1+np+np*6);
 
 
@@ -119,7 +121,9 @@ struct Material{
         double imag = 0.0;
         double abscf = 0.0;
         bool diffuse_inclusions = false;
+        bool use_distribution = false;
         DiffuseMaterial diffuse;
+        Distribution distribution;
 
         Material(){
         }
@@ -133,23 +137,28 @@ struct Material{
         Material(const Material& o){
             real = o.real;
             imag = o.imag;
-            diffuse_inclusions = o.diffuse_inclusions;
             abscf = o.abscf;
+            diffuse_inclusions = o.diffuse_inclusions;
+            use_distribution = o.use_distribution;
             if(diffuse_inclusions) diffuse = o.diffuse;
+            if(use_distribution) distribution = o.distribution;
         }
 
         Material(Material&& o) noexcept{
             real = o.real;
             imag = o.imag;
             diffuse_inclusions = o.diffuse_inclusions;
+            use_distribution = o.use_distribution;
             abscf = o.abscf;
             if(diffuse_inclusions) diffuse = o.diffuse;
+            if(use_distribution) distribution = o.distribution;
         }
 
 
         Material& operator=(const Material& o)
         {
-            return *this = Material(o);
+            *this = Material(o);
+            return *this;
         }
 
         Material& operator=(Material&& o) noexcept
@@ -158,6 +167,9 @@ struct Material{
             imag =  o.imag;
             diffuse_inclusions = o.diffuse_inclusions;
             if(diffuse_inclusions) diffuse = o.diffuse;
+            use_distribution = o.use_distribution;
+            if(use_distribution) distribution = o.distribution;
+            
             return *this;
         }
 
@@ -170,17 +182,25 @@ struct Material{
             if(o.diffuse_inclusions){
                 double mean_free_path,albedo;
                 std::string fname;
-                input >> mean_free_path >> albedo >> fname;
+                input >> mean_free_path >> albedo >> fname >> o.use_distribution;
                 o.diffuse = DiffuseMaterial(mean_free_path,albedo,fname);
+                if(o.use_distribution){
+                    input >> fname;
+                    o.distribution = Distribution(fname);
+                }
             }
-            
+            return input;
         }
 
         friend std::ostream& operator<<(std::ostream & stream, Material const & o) {
-            stream << "n=" << o.real << "+i" << o.imag;
-            if(o.diffuse_inclusions){
-
-                stream << ". Diffuse inclusion: a=" << o.diffuse._albedo << ", mfp="<< o.diffuse._mean_free_path << ", fname=" << o.diffuse._fname;
+            stream << "n=" << o.real << "+i" << o.imag;  
+            
+            if(o.use_distribution){
+                stream << ". Diffuse inclusion with distribution: a="<< o.diffuse._albedo 
+                        << ", from=" << o.diffuse._fname 
+                        << ", distribution:" << o.distribution.fname;
+            }else if(o.diffuse_inclusions){
+                stream << ". Diffuse inclusion: mfp=" << o.diffuse._mean_free_path << ", a="<< o.diffuse._albedo << ", from=" << o.diffuse._fname;
             }
            
             return stream;
@@ -202,6 +222,15 @@ struct Material{
         void compute_abscf(double m0real){
             double tmp = 2.0*M_PI*m0real;
             abscf = -2.0*tmp*(m0real*imag)/(m0real*m0real);
+        }
+
+        inline double generate_propagation_distance(double u){
+            if(use_distribution){
+                return distribution.pick_dist(u);
+            }else{
+                double mfp = diffuse._mean_free_path;
+                return -std::log(u)*mfp;
+            } 
         }
 
 

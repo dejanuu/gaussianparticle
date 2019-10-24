@@ -14,3 +14,4 @@ single-particle/*.out
 single-two-layer-particle/siris2l
 single-two-layer-particle/*.out
 multi-particle/*.o
+multi-particle/build/

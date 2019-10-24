@@ -21,12 +21,12 @@ class Materials{
         Materials(InputReader& reader) : materials(){
             bool contains_diffuse_inclusions = false;
             std::cout << create_heading("MATERIALS",HEADINGS::HEADING) << std::endl;
-            std::cout << "material format: ref_real ref_imag diffuse_inclusions mean_free_path albedo fname"  << std::endl;
+            std::cout << "Material format: ref_real ref_imag diffuse_inclusions mean_free_path albedo fname"  << std::endl;
             try{
-                std::cout << "surrouding media format: ref_real ref_imag 0" << std::endl;
+                std::cout << "Surrouding medium format: ref_real ref_imag 0" << std::endl;
                 materials.push_back(reader.extract<Material>("media",Material(1.0,0.0)));
                 materials.back().compute_abscf(materials[0].real);
-                if(materials[0].diffuse_inclusions) throw std::logic_error("surrouding media doesn't support diffuse inclusions");
+                if(materials[0].diffuse_inclusions) throw std::logic_error("Surrouding medium doesn't support diffuse inclusions");
                 for(int i=1;i<255;++i){
                     std::string material = std::string("material") + std::to_string(i);
                     if(reader.arg_found(material)){

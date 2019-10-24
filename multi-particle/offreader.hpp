@@ -12,7 +12,7 @@
 
 class OFFReader{
     public:
-        static void read_file(std::string& fname, std::vector<Point>& points, std::list<Triangle>& triangles, std::vector<std::tuple<int, int>>& material_inds){
+        static void read_file(std::string& fname, std::vector<Point>& points, std::list<Triangle>& triangles, std::vector<std::tuple<int, int>>& material_inds, bool centralize_points){
             std::ifstream input(fname.c_str());
             if (!input) throw std::invalid_argument(std::string("Cannot open file: ")+std::string(fname));
 
@@ -36,8 +36,13 @@ class OFFReader{
                 input >> c1 >> c2 >> c3;
                 points.push_back(Point(c1,c2,c3));
             }
+
             
-            centralize(points);
+            if(centralize_points){
+                centralize(points);
+                centralize(points);
+            }
+   
             input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             std::vector<int> face;
             for(int i=0;i<nfaces;++i){

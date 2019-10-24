@@ -18,7 +18,7 @@ extern"C" {
 void scatter_surface_(double* KE1, double* KF1, double* HL1, double* HR1,
                 double* MA1, double* F1, int* preserve1, double* N, double* m1re, double* m1im, 
                 double* m2re,double* m2im, double* KE2, double* KF2, double* HL2, double* HR2,
-                double* MA2, double* F2, int* preserve2);
+                double* MA2, double* F2, int* preserve2, int* prevent_TR);
 }
 
 
@@ -32,15 +32,30 @@ struct PhysicsEngine{
         int max_scattering = 10;
         double wavelen = 2*M_PI;
         double mesh_scale = 1.0;
+        double beam_radius = -1.0;
+        bool ignore_absorption = false;
+        int prevent_TR = 0;
+
 
     public:
         PhysicsEngine(InputReader& reader, RNG& _rng, MeshStats& meshStats) : rng(_rng){
             _max_dist = meshStats.max_dist;
+            beam_radius = _max_dist;
+
+            ignore_absorption = reader.extract<bool>("ignore_absorption",ignore_absorption);
+            prevent_TR = reader.extract<int>("prevent_TR",prevent_TR);
+
             max_scattering = reader.extract<double>("max_scattering",max_scattering);
             I_cutoff_limit = reader.extract<double>("I_cutoff_limit",I_cutoff_limit);
             killswitch_start = reader.extract<double>("killswitch_start",killswitch_start);
             wavelen = reader.extract<double>("wavelen",wavelen);
             mesh_scale = reader.extract<double>("mesh_scale",mesh_scale);
+            double tmp = reader.extract<double>("beam_radius",-1.0);
+            if(tmp>=0.0){
+                std::cout << "beam_radius > 0: custom beam size is in use" << std::endl;
+                beam_radius = tmp/mesh_scale;
+            }
+            meshStats.compute_area(beam_radius*mesh_scale); 
         }
 
 
@@ -48,14 +63,14 @@ struct PhysicsEngine{
 
         void scatter_surface(
                             SRay& ray1, SRay& ray2, double* N, Material* material1, Material* material2, 
-                            int& preserve1, int& preserve2){
+                            int& preserve1, int& preserve2, int& prevent_TR){
 
             
             ray2.material = (ray1.material==material1 ? material2 : material1);
             scatter_surface_(ray1.K, ray1.KF, ray1.HL, ray1.HR,
                 ray1.M, ray1.F, &preserve1, N, &ray1.material->real, &ray1.material->imag, 
                 &ray2.material->real, &ray2.material->imag,  ray2.K, ray2.KF, ray2.HL, ray2.HR,
-                ray2.M, ray2.F, &preserve2);
+                ray2.M, ray2.F, &preserve2, &prevent_TR);
         }
 
 
@@ -83,11 +98,11 @@ struct PhysicsEngine{
             double len = generate_dist(ray1);
             double len2=0.0;
             for(int i = 0; i<3;++i) len2 += ((ray1.X[i]-p->cartesian(i))*(ray1.X[i]-p->cartesian(i)));
-            if(std::sqrt(len2)<=len){
+            if(len2<len*len){
                 handle_nondiffuse_scattering(stack_diffuse, stack, stack_diffuse, material1, material2, p , N, detector);
                 return true;
             }else{
-                detector.register_absorption(traverse(ray1, len*len, mesh_scale));
+                detector.register_absorption(traverse(ray1, len*len, mesh_scale, ignore_absorption));
                 if(kill_ray(1,ray1,max_scattering, I_cutoff_limit,detector)){
                     stack_diffuse.pop_back();
                     return true;
@@ -102,7 +117,7 @@ struct PhysicsEngine{
 
 
         
-        double traverse(SRay& ray1, double len2, double mesh_scale){
+        double traverse(SRay& ray1, double len2, double mesh_scale, bool ignore_absorption){
             double abscf = ray1.material->abscf/wavelen;
             //std::cout << "wee " << abscf << std::endl;
             double qabs = 0.0;
@@ -118,10 +133,15 @@ struct PhysicsEngine{
                 if(abs(abscf*lenabs)<20.0){
                     attcf = exp(abscf*lenabs);
                 }
+
+                if(ignore_absorption){
+                    attcf = 1.0;
+                }
+
                 //std::cout << "kekf" << kekf << ","<< len2 <<  "," << lenabs << "," << (1.0-attcf) <<  "," << std::endl;
                 //std::cout << qabs <<"," << (1.0-attcf) <<"," << ray1.F[0] << std::endl;
+
                 qabs = (1.0-attcf)*ray1.F[0];
-                
                 multiply_mat_coeff(ray1.F,attcf,16);
             }
             return qabs;
@@ -129,8 +149,7 @@ struct PhysicsEngine{
 
 
         inline double generate_dist(SRay& ray){
-            double mfp = ray.material->diffuse._mean_free_path;
-            return -mfp*std::log(rng.rand())/mesh_scale;
+            return ray.material->generate_propagation_distance(rng.rand())/mesh_scale;
         }
 
 
@@ -145,7 +164,7 @@ struct PhysicsEngine{
             double len2 = 0.0;
             for(int i = 0; i<3;++i) len2 += ((ray1.X[i]-p->cartesian(i))*(ray1.X[i]-p->cartesian(i)));
             for(int i = 0; i<3;++i) ray1.X[i] = p->cartesian(i);
-            detector.register_absorption(traverse(ray1,len2,mesh_scale));
+            detector.register_absorption(traverse(ray1,len2,mesh_scale,ignore_absorption));
            // std::cout << ray1.F[0] << std::endl;
             if(ray1.F[0]!=ray1.F[0]) throw std::logic_error("error found");
             if(kill_ray(1,ray1,max_scattering, I_cutoff_limit,detector)){
@@ -158,7 +177,7 @@ struct PhysicsEngine{
 
             int preserve1 = 0;
             int preserve2 = 0;
-            scatter_surface(ray1, ray2, N, material1,material2,preserve1,preserve2);
+            scatter_surface(ray1, ray2, N, material1,material2,preserve1,preserve2,prevent_TR);
 
 
             if(preserve2==3){
@@ -194,6 +213,14 @@ struct PhysicsEngine{
                 }else{
                     multiply_mat_coeff(ray1.F,F/ray1.F[0],16);
                 }
+            }else if(preserve1==0){
+                current_stack.pop_back();
+                if(ray2.material->diffuse_inclusions){
+                    stack_diffuse.push_back(ray2);
+                }else{
+                    stack.push_back(ray2);
+                }   
+                
             }
         }
 
@@ -227,7 +254,7 @@ struct PhysicsEngine{
             
                 double X[3];
                 double tmp = rands[2]*2*M_PI;
-                double r = sqrt(rands[3])*_max_dist;
+                double r = sqrt(rands[3])*beam_radius;
                 X[0] = r*cos(tmp);
                 X[1] = r*sin(tmp);
                 X[2] = -_max_dist;

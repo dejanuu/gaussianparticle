@@ -25,6 +25,7 @@ contains
         real(kind=dp), intent(inout) :: xp(:)            !points in x-axis
         real(kind=dp), intent(inout) :: coeffs(:,:,:)    !coefficients
         real(kind=dp), intent(in) :: P(dimy,np)                           !points in x-axis in
+
         real(kind=dp) :: val
         real(kind=dp) :: tmpP,tmpVal
         integer :: m,j1,j2,ind
@@ -65,6 +66,7 @@ contains
         real(kind=dp), intent(in) :: dfa,dfb      !derivatives at the end points                                
         real(kind=dp),allocatable :: h(:),a(:),aa(:),bb(:),cc(:),x(:)
         integer :: n,j1,j2
+
         
         n = np
         allocate(h(n),a(n),aa(n),bb(n),cc(n),x(n))

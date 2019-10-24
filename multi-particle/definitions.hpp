@@ -50,12 +50,14 @@ struct MeshStats{
     double max_dist;
     double dX,dY,dZ;
 
+    double area;
+
     MeshStats(std::vector<Point>& points){
         double maxs[3] = {-MAXDBLVALUE,-MAXDBLVALUE,-MAXDBLVALUE};
         std::vector<Point>::iterator it; 
         for(it = points.begin(); it != points.end(); it++)    {
             for(int i = 0;i<3;++i){
-                if((*it)[i]>maxs[i]) maxs[i] = (*it)[i];
+                if(std::abs((*it)[i])>maxs[i]) maxs[i] = std::abs((*it)[i]);
             }
         }
         max_dist = sqrt(maxs[0]*maxs[0]+maxs[1]*maxs[1]+maxs[2]*maxs[2]);
@@ -63,6 +65,11 @@ struct MeshStats{
         dY = maxs[1];
         dZ = maxs[2];
     }
+
+    void compute_area(double radius){
+        area = M_PI*std::pow(radius,2);
+    }
+
 };
 
 
