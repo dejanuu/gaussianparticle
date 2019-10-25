@@ -87,8 +87,9 @@ Option 2: use CMake
 	cd multi-particle
 	mkdir build
 	cd build
-	cmake .. -CMAKE_BUILD_TYPE=Release
+	cmake .. -DCMAKE_BUILD_TYPE=Release
 	make
+	cp SIRISn ../sirismp
 
 #### Usage
 
