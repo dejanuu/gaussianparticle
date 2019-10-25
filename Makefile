@@ -3,17 +3,27 @@
 # Compiler
 COMP ?= gfortran
 CPPCOMP ?= g++
-# Required options for gfortran
+
+# GNU Compiler suite options
+## Fortran
+### Required options for gfortran
 FOPT = -ffree-form -std=f2008
-# Optional choices
-# For developing
+### Optional choices
+#### For developing
 #FOPT += -fimplicit-none -fcheck=bounds,pointer -Wall -Wno-maybe-uninitialized
-# Minor optimization
-FOPT += -O1
-# Major optimization
-#FOPT += -Ofast -mtune=native -ffpe-summary=none
-# For debugging
+#### Minor optimization
+#FOPT += -O1
+#### Major optimization
+FOPT += -Ofast -mtune=native -ffpe-summary=none
+#### For debugging
 #FOPT += -g -fbacktrace -ffpe-trap=invalid,zero,overflow,underflow
+## C++
+### Required options for C++
+COPT = -std=c++11 -Wno-narrowing
+#### Minor optimization
+#FOPT += -O1
+#### Major optimization
+COPT += -Ofast -mtune=native -frounding-math
 
 ###############################################################################
 
@@ -25,7 +35,7 @@ MPCFILES =  detector geometry inputreader materials meshreader mray rng offreade
 
 ###############################################################################
 
-all : directories GS singleparticle singletwolayer
+all : directories GS singleparticle singletwolayer multiparticle
 .PHONY : all clean directories
 
 singletwolayer : directories siris4lib single-two-layer-particle/single-two-layer-main.f
@@ -38,7 +48,7 @@ GS : directories siris4lib GS/GS-main.f
 	$(COMP) $(FOPT) -o GS/GS -J mod -L lib GS/GS-main.f -lsiris4
 
 multiparticle : directories siris4lib $(addprefix multi-particle/,$(addsuffix .o,$(MPCFILES))) $(addprefix multi-particle/,$(addsuffix .o,$(MPFFILES))) multi-particle/main.cpp
-	$(CPPCOMP) -o multi-particle/sirismp $(addprefix multi-particle/,$(addsuffix .o,$(MPCFILES))) $(addprefix multi-particle/,$(addsuffix .o,$(MPFFILES)))  multi-particle/main.cpp -lCGAL -L lib -lsiris4 -lgfortran -lquadmath
+	$(CPPCOMP) $(COPT) -o multi-particle/sirismp $(addprefix multi-particle/,$(addsuffix .o,$(MPCFILES))) $(addprefix multi-particle/,$(addsuffix .o,$(MPFFILES)))  multi-particle/main.cpp -lCGAL -L lib -lsiris4 -lgfortran -lquadmath
 
 siris4lib : directories lib/libsiris4.a
 	
@@ -52,7 +62,7 @@ multi-particle/%.o : multi-particle/%.f90
 	$(COMP) $(FOPT) -c -J mod -o multi-particle/$*.o multi-particle/$*.f90
 
 multi-particle/%.o : multi-particle/%.cpp
-	$(CPPCOMP) -c -o multi-particle/$*.o multi-particle/$*.cpp
+	$(CPPCOMP) $(COPT) -c -o multi-particle/$*.o multi-particle/$*.cpp
 
 clean : 
 	rm -rf lib/*.o
