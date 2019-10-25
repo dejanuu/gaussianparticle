@@ -9,18 +9,13 @@ cmake_minimum_required(VERSION 2.8.10)
 find_package(CGAL REQUIRED)
 find_package(Boost REQUIRED)
 
-
-  
-
 if ( CGAL_FOUND )
     include( ${CGAL_USE_FILE} )
 
 
-    set(CMAKE_Fortran_FLAGS "-O3 -cpp -mtune=native -std=f2008 -ffree-form")
-    set(CMAKE_CXX_FLAGS "-O3 -std=c++11 -mtune=native -frounding-math")
+    set(CMAKE_Fortran_FLAGS "-Ofast -mtune=native -std=f2008 -ffree-form")
+    set(CMAKE_CXX_FLAGS "-Ofast -std=c++11 -mtune=native -frounding-math -Wno-narrowing")
     #set(CMAKE_CXX_FLAGS_RELEASE "-g -frounding-math -std=c++11")
-
-
 
     #create_single_source_cgal_program(  )
     add_executable(SIRISn "inputreader.cpp" "misc.hpp" "rng.cpp" 
