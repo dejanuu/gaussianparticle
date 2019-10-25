@@ -21,24 +21,24 @@ MKDIR = mkdir -p
 DIRECTORIES = lib mod
 LIBFILENAMES = sirisconstants sirismath sirismaterial sirisnumint sirisgeometry sirisgaussiansphere sirisray sirisradtrans
 MPFFILES = mathroutines splinetools sirisinterface
-MPCFILES = detector geometry inputreader materials meshreader mray offreader outputwriter physicsengine rng smaterial sray tracer
+MPCFILES =  detector geometry inputreader materials meshreader mray rng offreader outputwriter physicsengine sray tracer smaterial
 
 ###############################################################################
 
 all : directories GS singleparticle singletwolayer
 .PHONY : all clean directories
 
-singletwolayer : directories single-two-layer-particle/single-two-layer-main.f siris4lib
+singletwolayer : directories siris4lib single-two-layer-particle/single-two-layer-main.f
 	$(COMP) $(FOPT) -o single-two-layer-particle/siris2l -J mod -L lib single-two-layer-particle/single-two-layer-main.f -lsiris4 
 
-singleparticle : directories single-particle/single-particle-main.f siris4lib
+singleparticle : directories siris4lib single-particle/single-particle-main.f
 	$(COMP) $(FOPT) -o single-particle/siris1p -J mod -L lib single-particle/single-particle-main.f -lsiris4 
 
-GS : directories GS/GS-main.f siris4lib
+GS : directories siris4lib GS/GS-main.f
 	$(COMP) $(FOPT) -o GS/GS -J mod -L lib GS/GS-main.f -lsiris4
 
-multiparticle : directories multi-particle/main.cpp $(addprefix multi-particle/,$(addsuffix .o,$(MPFFILES))) $(addprefix multi-particle/,$(addsuffix .o,$(MPCFILES))) siris4lib
-	$(CPPCOMP) -o multi-particle/sirismp -L lib $(addprefix multi-particle/,$(addsuffix .o,$(MPFFILES))) $(addprefix multi-particle/,$(addsuffix .o,$(MPCFILES))) multi-particle/main.cpp -lCGAL -lsiris4 -lgfortran 
+multiparticle : directories siris4lib $(addprefix multi-particle/,$(addsuffix .o,$(MPCFILES))) $(addprefix multi-particle/,$(addsuffix .o,$(MPFFILES))) multi-particle/main.cpp
+	$(CPPCOMP) -o multi-particle/sirismp $(addprefix multi-particle/,$(addsuffix .o,$(MPCFILES))) $(addprefix multi-particle/,$(addsuffix .o,$(MPFFILES)))  multi-particle/main.cpp -lCGAL -L lib -lsiris4 -lgfortran -lquadmath
 
 siris4lib : directories lib/libsiris4.a
 	
@@ -48,8 +48,8 @@ lib/libsiris4.a : $(addprefix lib/,$(addsuffix .o,$(LIBFILENAMES)))
 lib/%.o : src/%.f
 	$(COMP) $(FOPT) -c -J mod -o lib/$*.o src/$*.f
 
-multi-particle/%.o : multi-particle/%.f
-	$(COMP) $(FOPT) -c -J mod -o multi-particle/$*.o multi-particle/$*.f
+multi-particle/%.o : multi-particle/%.f90
+	$(COMP) $(FOPT) -c -J mod -o multi-particle/$*.o multi-particle/$*.f90
 
 multi-particle/%.o : multi-particle/%.cpp
 	$(CPPCOMP) -c -o multi-particle/$*.o multi-particle/$*.cpp
