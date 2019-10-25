@@ -9,6 +9,7 @@ Department of Physics, University of Helsinki, Finland
 
 - *siris1p* Geometric optics with diffuse scatterers computations for a single Gaussian-random-sphere particle.
 - *siris2l* Geometric optics with diffuse scatterers computations for a single Gaussian-random-sphere particle having core-mantle geometry.
+- *sirismp* Geometric optics with diffuse scatterers computations for multiple particles.
 - *GS* Gaussian spheres for creating the discretized meshes for Gaussian sphere particles.
 
 ## Compiling, general
@@ -66,6 +67,33 @@ Run from command line. Give the name of the input file as command line argument,
 
 	cd single-two-layer-particle
 	./siris2l single-two-layer-input.in [mantle-diffuse-scatterer-scattering-matrix-input-name] [core-diffuse-scatterer-scattering-matrix-input-name]
+
+The different parameter options are commented in the example input file.
+
+### sirismp Geometric optics computations for multiple particles
+
+SIRIS4 Geometric optics with diffuse scatterers computations for multiple particles. The SIRIS4-version includes the treatment of inhomogeneous waves in absorbing media. Produces the scattering matrix and efficiences for the collection of particles.
+
+If pubishing or distributing results that use this code, please reference both to ?.
+
+#### Compiling
+
+Option 1: use Makefile
+
+	make multiparticle
+
+Option 2: use CMake
+
+	cd multi-particle
+	cmake .
+	???
+
+#### Usage
+
+Run from command line. Give the name of the input file as command line argument, e.g.,
+
+	cd multi-particle
+	./sirismp ???
 
 The different parameter options are commented in the example input file.
 
