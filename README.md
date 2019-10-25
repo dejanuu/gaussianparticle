@@ -74,7 +74,7 @@ The different parameter options are commented in the example input file.
 
 SIRIS4 Geometric optics with diffuse scatterers computations for multiple particles. The SIRIS4-version includes the treatment of inhomogeneous waves in absorbing media. Produces the scattering matrix and efficiences for the collection of particles.
 
-If pubishing or distributing results that use this code, please reference both to ?.
+If pubishing or distributing results that use this code, please reference to \[4\].
 
 #### Compiling
 
