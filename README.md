@@ -85,8 +85,10 @@ Option 1: use Makefile
 Option 2: use CMake
 
 	cd multi-particle
-	cmake .
-	???
+	mkdir build
+	cd build
+	cmake .. -CMAKE_BUILD_TYPE=Release
+	make
 
 #### Usage
 
