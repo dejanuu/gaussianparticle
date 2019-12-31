@@ -74,7 +74,7 @@ The different parameter options are commented in the example input file.
 
 SIRIS4 Geometric optics with diffuse scatterers computations for multiple particles. The SIRIS4-version includes the treatment of inhomogeneous waves in absorbing media. Produces the scattering matrix and efficiences for the collection of particles.
 
-If pubishing or distributing results that use this code, please reference both to ?.
+If pubishing or distributing results that use this code, please reference to \[4\].
 
 #### Compiling
 
@@ -90,6 +90,8 @@ Option 2: use CMake
 	cmake .. -DCMAKE_BUILD_TYPE=Release
 	make
 	cp SIRISn ../sirismp
+
+With both options, you will need the C++-libraries GCAL (https://www.cgal.org/) and Boost (https://www.boost.org/) installed in your system.
 
 #### Usage
 
@@ -130,3 +132,4 @@ The different parameter options are commented in the example input file.
 1. Muinonen K, Nousiainen T, Fast P, Lumme K, and Peltoniemi JI (1996). Light scattering by Gaussian random particles: Ray optics approximation. Journal of Quantitative Spectroscopy & Radiative Transfer 55(5), 577–601. DOI:[10.1016/0022-4073(96)00003-9](https://doi.org/10.1016/0022-4073(96)00003-9).
 2. Muinonen K, Nousiainen T, Lindqvist H, Muñoz O, and Videen G (2009). Light scattering by Gaussian particles with internal inclusions and roughened surfaces using ray optics. Journal of Quantitative Spectroscopy & Radiative Transfer 110, 1628–1639. DOI:[10.1016/j.jqsrt.2009.03.012](https://doi.org/10.1016/j.jqsrt.2009.03.012).
 3. Lindqvist H, Martikainen J, Räbinä J, Penttilä A, and Muinonen K (2018). Ray optics in absorbing media with application to ice crystals at near-infrared wavelengths. Journal of Quantitative Spectroscopy & Radiative Transfer 217, 329–337. DOI:[10.1016/j.jqsrt.2018.06.005](https://doi.org/10.1016/j.jqsrt.2018.06.005).
+4. Väisänen T, Martikainen J, and Muinonen K (2019). Scattering of light by dense particulate media in the geometric optics regime. Journal of Quantitative Spectroscopy & Radiative Transfer, in press. DOI:[10.1016/j.jqsrt.2019.106719](https://doi.org/10.1016/j.jqsrt.2019.106719).
