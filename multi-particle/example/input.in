@@ -1,4 +1,4 @@
-nrays 100000
+nrays 10000
 max_scattering 200
 killswitch_start 70
 nbins 80
