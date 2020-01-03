@@ -17,28 +17,6 @@ contains
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-function compute_volume(XT,IT,ntri) result(vol)
-
-  real(kind=dp), dimension(:,:), intent(in) :: XT
-  integer, dimension(:,:), intent(in) :: IT
-  integer, intent(in) :: ntri
-  real(kind=dp) :: vol
-  real(kind=dp) :: O(3), B(3), C(3), D(3)
-  integer :: j1
-
-  O=(/0.0_dp,0.0_dp,0.0_dp/)
-  vol=0.0_dp
-  do j1=1,ntri
-    B=XT(IT(j1,1),:)
-    C=XT(IT(j1,2),:)
-    D=XT(IT(j1,3),:)
-    vol=vol+simplex3volume(B,D,C)
-  end do
-
-end function compute_volume
-
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Returns the Legendre coefficients for the correlation
 ! function with power-law Legendre coefficients.
 subroutine cs1cf(CSCF,nu,lmin,lmax)
@@ -102,197 +80,6 @@ subroutine csini(CL,crlen,cs2d,cs4d,lmax)
   endif
 
 end subroutine csini
-
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Random particle orientation using Euler angles.
-! Version: 2015-02-05
-subroutine pranor(XN,NT,XN0,NT0,nnod,ntri)
-
-  real(kind=dp), dimension(:,:), intent(out) :: XN
-  real(kind=dp), dimension(:,:), intent(out) :: NT
-  real(kind=dp), dimension(:,:), intent(in) :: XN0
-  real(kind=dp), dimension(:,:), intent(in) :: NT0
-  integer, intent(in) :: nnod, ntri
-  integer :: j1, j2
-  real(kind=dp) :: gamma, alpha, ran2
-  real(kind=dp), dimension(3) :: X, CEU, SEU
-
-  ! Euler angles in the laboratory reference frame (K) for
-  ! expressing a vector given in K in the particle reference
-  ! frame (K'):
-  call random_number(ran2)
-  gamma=2.0_dp*pi*ran2
-  alpha=2.0_dp*pi*ran2
-  CEU(1)=cos(gamma)
-  CEU(2)=1.0_dp-2.0_dp*ran2
-  CEU(3)=cos(alpha)
-  SEU(1)=sin(gamma)
-  SEU(2)=sqrt(1.0_dp-CEU(2)**2)
-  SEU(3)=sin(alpha)
-
-  ! Nodes:
-  do j1 = 1, nnod
-    do j2 = 1, 3
-      X(j2)=XN0(j1,j2)
-    end do
-    call vproteut(X,CEU,SEU)
-    do j2 = 1, 3
-      XN(j1,j2)=X(j2)
-    end do
-  end do
-
-  ! Normals:
-  do j1 = 1, ntri
-    do j2 = 1, 3
-      X(j2)=NT0(j1,j2)
-    end do
-    call vproteut(X,CEU,SEU)
-    do j2 = 1, 3
-      NT(j1,j2)=X(j2)
-    end do
-  end do
-
-end subroutine pranor
-
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! 
-subroutine save_idl(fbn,XT,IT,nnod,ntri)
-
-  character(*), intent(in) :: fbn
-  real(kind=dp), dimension(:,:), intent(in) :: XT
-  integer, dimension(:,:), intent(in) :: IT
-  integer, intent(in) :: nnod, ntri
-  integer :: j1, fu
-  character(len=file_name_length) :: fn
-
-  ! File name
-  write(fn, '(A,A)') trim(fbn), ".idf"
-  
-  ! File unit and unit opening
-  open(newunit=fu, file=trim(fn), action='write', status='replace')
-
-  ! Write number of vertices and triangles
-  write(fu,*) nnod, ntri
-  ! Vertices
-  do j1=1,nnod
-    write(fu,*) XT(j1,:)
-  end do
-  ! Triangle indices
-  do j1=1,ntri
-    write (fu,*) 3
-    write (fu,*) IT(j1,:)
-  end do
-
-  close(fu)
-
-end subroutine save_idl
-
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! 
-subroutine save_matlab(fbn,XT,nnod)
-
-  character(*), intent(in) :: fbn
-  real(kind=dp), dimension(:,:), intent(in) :: XT
-  integer, intent(in) :: nnod
-  integer :: j1, fux, fuy, fuz
-  character(len=file_name_length) :: fnx, fny, fnz
-
-  ! File names
-  write(fnx, '(A,A)') trim(fbn), "x.out"
-  write(fny, '(A,A)') trim(fbn), "y.out"
-  write(fnz, '(A,A)') trim(fbn), "z.out"
-  
-  ! File units and unit opening
-  open(newunit=fux, file=trim(fnx), action='write', status='replace')
-  open(newunit=fuy, file=trim(fny), action='write', status='replace')
-  open(newunit=fuz, file=trim(fnz), action='write', status='replace')
-
-  ! Write surface vertices
-  do j1=1,nnod
-    write (fux,*) XT(j1,1)
-    write (fuy,*) XT(j1,2)
-    write (fuz,*) XT(j1,3)
-  end do
-
-  close(fux)
-  close(fuy)
-  close(fuz)
-   
-end subroutine save_matlab
-
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! 
-subroutine save_off(fbn,XT,IT,nnod,ntri)
-
-  character(*), intent(in) :: fbn
-  real(kind=dp), dimension(:,:), intent(in) :: XT
-  integer, dimension(:,:), intent(in) :: IT
-  integer, intent(in) :: nnod, ntri
-  integer :: j1, fu
-  character(len=file_name_length) :: fn
-
-  ! File name
-  write(fn, '(A,A)') trim(fbn), ".off"
-  
-  ! File unit and unit opening
-  open(newunit=fu, file=trim(fn), action='write', status='replace')
-
-  write(fu,'(A)') "OFF"
-  write(fu,'(I0,1X,I0,1X,I0)') nnod, ntri, 0
-
-  ! Write surface vertices
-  do j1=1,nnod
-    write (fu,*) XT(j1,:)
-  end do
-  ! Triangle indices
-  do j1=1,ntri
-    write (fu,*) 3, IT(j1,:)-1
-  end do
-  close(fu)
-
-end subroutine save_off
-
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! 
-subroutine save_vtk(fbn,XT,IT,nnod,ntri)
-
-  character(*), intent(in) :: fbn
-  real(kind=dp), dimension(:,:), intent(in) :: XT
-  integer, dimension(:,:), intent(in) :: IT
-  integer, intent(in) :: nnod, ntri
-  integer :: j1, fu
-  character(len=file_name_length) :: fn
-
-  ! File name
-  write(fn, '(A,A)') trim(fbn), ".vtk"
-  
-  ! File unit and unit opening
-  open(newunit=fu, file=trim(fn), action='write', status='replace')
-
-  write(fu,'(A)') '# vtk DataFile Version 2.0'
-  write(fu,'(A)') 'gsphere output            '
-  write(fu,'(A)') 'ASCII                     '
-  write(fu,'(A)') 'DATASET POLYDATA          '
-  write(fu,'(A,I0,A)') 'POINTS ',nnod,' float'
-
-  ! Write surface vertices
-  do j1=1,nnod
-    write (fu,*) XT(j1,:)
-  end do
-  
-  ! Triangle indices
-  write (fu,'(A,I7,I7)') 'POLYGONS ',ntri,4*ntri
-  do j1=1,ntri
-    write (fu,*) 3,IT(j1,:)-1
-  end do
-  close(fu)
-
-end subroutine save_vtk
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -418,7 +205,7 @@ subroutine rgstd(X,N,MU,PHI,ACF,BCF,rmax,beta,IT,nnod,ntri,lmax)
   integer, intent(in) :: nnod, ntri, lmax
   integer :: j1, j2
   real(kind=dp) :: r, nu
-  real(kind=dp), dimension(3) :: X1, X2, X3
+  real(kind=dp), dimension(3) :: X1, X2
 
   ! Node coordinates:
   rmax=0.0_dp
@@ -438,11 +225,7 @@ subroutine rgstd(X,N,MU,PHI,ACF,BCF,rmax,beta,IT,nnod,ntri,lmax)
       X1(j2)=X(IT(j1,2),j2)-r
       X2(j2)=X(IT(j1,3),j2)-r
     end do
-    call provec(X3,X1,X2)
-    r=sqrt(X3(1)**2+X3(2)**2+X3(3)**2)
-    do j2=1,3
-      N(j1,j2)=X3(j2)/r
-    end do
+    call provecn(N(j1,:),X1,X2)
   end do
 
 end subroutine rgstd

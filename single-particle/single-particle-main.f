@@ -4,22 +4,24 @@ PROGRAM singleparticle
   use sirismath
   use sirismaterial
   use sirisgeometry
+  use sirismesh
   use sirisgaussiansphere
   use sirisradtrans
   use sirisray
   
   integer  :: nbin, j, jray, jsub, jbox, pout, nray, seed1, &
     ntri,j1,j2,totref,lmax, npar,pin,pinmax,poutmax,ntr,nis, savenum, &
-    l1, flgin, np, nrn, pflg,ncm, nnod, nsub, fu, run_num
+    l1, flgin, np, nrn, pflg,ncm, nnod, nsub, fu, run_num, &
+    extmeshtype = -1, cstat
   integer, dimension(50) :: PBOX, NISBOX
   integer, dimension(:,:), pointer :: IT
-  logical :: ignabs = .false.
+  logical :: ignabs = .false., extmesh = .false.
   real(kind=dp):: wrayh, wraym, norm, ran2, mui, nui, phii, sphii, cphii, &
     rmax, r0, phi0, qsca,qabs,qin,qout,qis,qbox,abscf,len,lenabs,kekf,beta,nie, &
     nk,Fstop,bin,bin0,norml,wray, wavelen, xa, m2real, &
     m2imag, qscaG, qabsG, qextG, renorm, lin, otin, lenrn, ghg1, ghg11, ghg21, &
-    whg1, pmx1, dthe, pnorm1, radius, mmed, sig, nuc, rho, cs2d, cs4d, &
-    ell,fintmp
+    whg1, pmx1, dthe, pnorm1, radius, mmed, sig, nuc, cs2d, cs4d, &
+    ell, fintmp
   real(kind=dp), dimension(2):: MA0, MAOUT, MAIN
   real(kind=dp), dimension(3) :: KEOUT, KFOUT, X, ELOUT, EROUT, Y, N, KEIN, KFIN, &
     ELIN, ERIN
@@ -31,7 +33,8 @@ PROGRAM singleparticle
   real(kind=dp), dimension(3,50) :: KEBOX, KFBOX, XBOX
   real(kind=dp), dimension(4,4) :: FOUT, FIN  
   real(kind=dp), dimension(0:256,0:256) :: ACF, BCF, SCFSTD
-  real(kind=dp), dimension(:,:), allocatable :: XN, XN0, NT, NT0
+  real(kind=dp), dimension(:,:), allocatable :: XN, NT
+  real(kind=dp), dimension(:,:), pointer :: XN0, NT0
   real(kind=dp), dimension(4,4,50) :: FBOX
   real(kind=dp), dimension(361,4,4) :: S, YP1, YP21
   real(kind=dp), dimension(0:360,4,4) :: P1
@@ -39,7 +42,7 @@ PROGRAM singleparticle
   complex(kind=dp), dimension(3) :: HLOUT, HROUT, HLIN, HRIN
   complex(kind=dp), dimension(3,50) :: HLBOX, HRBOX    
   character(len=1) :: inhmg
-  character(len=file_name_length) :: fname, fname2, infile
+  character(len=file_name_length) :: fname, fname2, infile, meshfile
 
   ! Read inputs from file:
   if(command_argument_count() == 0) then
@@ -80,41 +83,94 @@ PROGRAM singleparticle
   read(fu, *) lmax        ! Maximum degree in C_1, C_2, C_3.
   read(fu, *) ntr         ! Number of triangle rows in an octant.
   read(fu, *) fname       ! Prefix for the output file names
-  close(fu)
-
-  write(output_unit,'(A)') 'Geometric optics approximation for a Gaussian random sphere...'
-  write(output_unit,'(A,F7.1,A)') 'Particle mean radius ', radius, ' micrometers'
+  ! Optional, read external geometry mesh file
+  read(fu, *, IOSTAT=cstat) extmeshtype
+  if(cstat==0 .and. extmeshtype > 0) then
+    extmesh = .true.
+    read(fu, *) meshfile  ! External mesh geometry file name
+    npar=1
+    close(fu)
+  end if
+  
+  if(extmesh) then
+    write(output_unit,'(A)') 'Geometric optics approximation for triangulated mesh particle...'
+    write(output_unit,'(A,A,A)') "Particle given in file '", trim(meshfile), "'"
+  else
+    write(output_unit,'(A)') 'Geometric optics approximation for a Gaussian random sphere...'
+    write(output_unit,'(A,F7.1,A)') 'Particle mean radius ', radius, ' micrometers'
+  end if
   write(output_unit,'(A,I0)') 'Number of rays: ', nray
+    
 
   call init_random(seed1)
 
   nsub=nray/npar
   if(nsub*npar /= nray) stop 'Trouble in GEO: ray/particle number mismatch.'
 
-  ! Initialization of the Gaussian random sphere:
-  beta=sqrt(log(sig**2+1.0_dp))
-  call cs1cf(CSCF,nuc,2,lmax)  !power law
-  call csini(CSCF,ell,cs2d,cs4d,lmax)
-
-  call sgscfstd(SCFSTD,CSCF,beta,lmax)
-
-  rho=beta/ell
-
   ! Refractive indices:
   m2 = cmplx(m2real, m2imag, dp)
   m1 = cmplx(mmed, 0.0_dp, dp)   ! ref index of the medium
+  call refindapp(MA0,m1,1.0d0)
 
-  lin=lin/radius
+  ! Initialization of the Gaussian random sphere:
+  if(.not. extmesh) then
+    beta=sqrt(log(sig**2+1.0_dp))
+    call cs1cf(CSCF,nuc,2,lmax)  !power law
+    call csini(CSCF,ell,cs2d,cs4d,lmax)
 
-  whg1 = (ghg1-ghg21)/(ghg11-ghg21)
+    call sgscfstd(SCFSTD,CSCF,beta,lmax)
 
-  ! Size parameter, absorption parameter, refractive indices:
+    whg1 = (ghg1-ghg21)/(ghg11-ghg21)
+
+    ! Discretization:
+    call TRIDS(MUN,PHIN,IT,nnod,ntri,ntr)
+    allocate(XN(nnod,3), XN0(nnod,3), NT(ntri,3), NT0(ntri,3))
+  
+    call sgscf(ACF,BCF,SCFSTD,lmax)
+    call rgstd(XN0,NT0,MUN,PHIN,ACF,BCF,rmax,beta,IT,nnod,ntri,lmax)
+    
+    ! TEMP
+    call save_off("GS-current",XN0,IT,nnod,ntri)
+  
+  ! Initialization of the external mesh geometry:
+  else
+  
+    call read_off(meshfile,XN0,IT,NT0,nnod,ntri,cstat)
+    if(cstat /= 0) then
+      write(error_unit,*) 'Error in reading the mesh geometry from file'
+      stop
+    end if
+    
+    allocate(XN(nnod,3), NT(ntri,3))
+    
+    ! Translate vertex mean to origin, scale vertices to mean radius of one, 
+    ! compute maximum radius
+    X(:) = 0.0_dp
+    do j1=1,nnod
+      X(1) = X(1) + XN0(j1,1)
+      X(2) = X(2) + XN0(j1,2)
+      X(3) = X(3) + XN0(j1,3)
+    end do
+    X(1) = X(1)/nnod
+    X(2) = X(2)/nnod
+    X(3) = X(3)/nnod
+    
+    r0 = 0.0_dp
+    do j1=1,nnod
+      XN0(j1,1) = XN0(j1,1)-X(1)
+      XN0(j1,2) = XN0(j1,2)-X(2)
+      XN0(j1,3) = XN0(j1,3)-X(3)
+      r0 = XN0(j1,1)**2+XN0(j1,2)**2+XN0(j1,3)**2
+      if(rmax < r0) rmax = r0
+    end do
+    rmax = sqrt(rmax)
+
+  end if
+  
+  ! Size parameter, absorption parameter, scaling of free path:
   xa = 2.0_dp*pi*radius/wavelen
   abscf = -2.0_dp*xa*m2imag
-
-  ! Discretization:
-  call TRIDS(MUN,PHIN,IT,nnod,ntri,ntr)
-  allocate(XN(nnod,3), XN0(nnod,3), NT(ntri,3), NT0(ntri,3))
+  lin=lin/radius
 
   ! Initialize:
   qsca = 0.0_dp
@@ -125,20 +181,19 @@ PROGRAM singleparticle
   qbox = 0.0_dp
   S = 0.0_dp
 
-  ! Initialize the scattering phase matrices:
-  dthe=pi/np
-  allocate(CSRN1(0:nrn))
-  if (pflg == 1) then
-    call pmatrix1_single(P1,np)
-    call psplivi(P1,CSRN1,XP1,YP1,YP21,pnorm1,dthe,nrn,np,ncm)
+  ! Initialize the diffuse scattering phase matrices:
+  if(flgin > 0) then
+    dthe=pi/np
+    allocate(CSRN1(0:nrn))
+    if (pflg == 1) then
+      call pmatrix1_single(P1,np)
+      call psplivi(P1,CSRN1,XP1,YP1,YP21,pnorm1,dthe,nrn,np,ncm)
+    end if
   end if
 
   ! Storage grid parameters:
   bin = pi/nbin
   bin0 = cos(0.5_dp*bin)
-
-  ! Refractive indices:
-  call refindapp(MA0,m1,1.0d0)
 
   ! Externally propagating rays. Initialization:
   jray = 0
@@ -147,8 +202,6 @@ PROGRAM singleparticle
   wrayh = 0.0_dp ! rays that hit
   wraym = 0.0_dp ! rays that miss
 
-  call sgscf(ACF,BCF,SCFSTD,lmax)
-  call rgstd(XN0,NT0,MUN,PHIN,ACF,BCF,rmax,beta,IT,nnod,ntri,lmax)
 
 100 if(jbox == 0) then
     pout = 0
@@ -270,13 +323,15 @@ PROGRAM singleparticle
 
     ! Generation of the spherical harmonics coefficients for the
     ! logradius. Discretization and random orientation of the Gaussian
-    ! sample sphere:
-    jsub=jsub+1
-    if(jsub > nsub) then
-      call sgscf(ACF,BCF,SCFSTD,lmax)
-      call rgstd(XN0,NT0,MUN,PHIN,ACF,BCF,rmax,beta,IT,nnod,ntri,lmax)
-      jsub=1
-    endif
+    ! sample sphere. Not with external mesh:
+    if(.not. extmesh) then
+      jsub=jsub+1
+      if(jsub > nsub) then
+        call sgscf(ACF,BCF,SCFSTD,lmax)
+        call rgstd(XN0,NT0,MUN,PHIN,ACF,BCF,rmax,beta,IT,nnod,ntri,lmax)
+        jsub=1
+      endif
+    end if
 
     call pranor(XN,NT,XN0,NT0,nnod,ntri)
 

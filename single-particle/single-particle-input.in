@@ -11,7 +11,7 @@
 1.5E+000  ! wavelength in micrometers
 200.0     ! Mean radius (in micrometers)
 1         ! run identification number
-1         ! Internal medium: 1=yes
+0         ! Internal medium: 1=yes
 1         ! Scattering matrix: input(1), Rayleigh(2)
 0.549069  ! Internal medium: single-scattering albedo
 53.33     ! Internal medium: mean free path (in micrometers)
@@ -27,3 +27,5 @@
 10        ! Maximum degree in C_1, C_2, C_3
 30        ! Number of rows in an octant
 test      ! prefix for output file
+1         ! external input mesh type: 0=no mesh, 1=OFF
+siris-output.off  ! external mesh file name

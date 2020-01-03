@@ -16,6 +16,6 @@ MODULE SIRISCONSTANTS
   
   real(kind=dp), parameter :: pi = 3.1415926535897932_dp
   
-  integer, parameter :: file_name_length = 256
+  integer, parameter :: file_name_length = 256, line_str_length = 1024
 
 END MODULE SIRISCONSTANTS

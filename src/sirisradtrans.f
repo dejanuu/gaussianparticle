@@ -868,6 +868,8 @@ subroutine pmatrix1_single(P,np,argnum)
   integer :: j1, fu, argn
   real(kind=dp) :: p11, p12, p22, p33, p34, p44, the
   character(len=file_name_length) :: infile
+  
+  WRITE(*,*) 'called'
 
   ! Reset:
   P(:,:,:)=0.0_dp
@@ -1608,10 +1610,11 @@ subroutine snel2l(KEI,KFI,MAI,KE1,KF1,MA1,KE2,KF2,MA2,N,T2, &
     KF2 = KE2
   end if
 
-  if(real(m1,kind=dp)*dd/real(m2,kind=dp)>1.0_dp .and. preventTR==1) then
-      !write(6,*) "totref"
-      totref =.true.
-  endif
+  ! Wrong statement was here, 'dd' not defined
+!  if(real(m1,kind=dp)*dd/real(m2,kind=dp)>1.0_dp .and. preventTR==1) then
+!      !write(6,*) "totref"
+!      totref =.true.
+!  endif
 
 
   ! Preparation for Fresnel coefficients:

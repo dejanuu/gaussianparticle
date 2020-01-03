@@ -16,6 +16,29 @@ contains
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Volume of triangle mesh object
+function compute_volume(XT,IT,ntri) result(vol)
+
+  real(kind=dp), dimension(:,:), intent(in) :: XT
+  integer, dimension(:,:), intent(in) :: IT
+  integer, intent(in) :: ntri
+  real(kind=dp) :: vol
+  real(kind=dp) :: O(3), B(3), C(3), D(3)
+  integer :: j1
+
+  O=(/0.0_dp,0.0_dp,0.0_dp/)
+  vol=0.0_dp
+  do j1=1,ntri
+    B=XT(IT(j1,1),:)
+    C=XT(IT(j1,2),:)
+    D=XT(IT(j1,3),:)
+    vol=vol+simplex3volume(B,D,C)
+  end do
+
+end function compute_volume
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Computes the intersection point on the plane determined
 ! by the three given positions.
 subroutine isplane(S,X,K,U3,D,X1,X2,X3)
@@ -157,6 +180,58 @@ subroutine istri(X,K,N,XN,NT,IT,nk,s3,ntri,nis,nie)
   end if
 
 end subroutine istri
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Random particle orientation using Euler angles.
+! Version: 2015-02-05
+subroutine pranor(XN,NT,XN0,NT0,nnod,ntri)
+
+  real(kind=dp), dimension(:,:), intent(out) :: XN
+  real(kind=dp), dimension(:,:), intent(out) :: NT
+  real(kind=dp), dimension(:,:), intent(in) :: XN0
+  real(kind=dp), dimension(:,:), intent(in) :: NT0
+  integer, intent(in) :: nnod, ntri
+  integer :: j1, j2
+  real(kind=dp) :: gamma, alpha, ran2
+  real(kind=dp), dimension(3) :: X, CEU, SEU
+
+  ! Euler angles in the laboratory reference frame (K) for
+  ! expressing a vector given in K in the particle reference
+  ! frame (K'):
+  call random_number(ran2)
+  gamma=2.0_dp*pi*ran2
+  alpha=2.0_dp*pi*ran2
+  CEU(1)=cos(gamma)
+  CEU(2)=1.0_dp-2.0_dp*ran2
+  CEU(3)=cos(alpha)
+  SEU(1)=sin(gamma)
+  SEU(2)=sqrt(1.0_dp-CEU(2)**2)
+  SEU(3)=sin(alpha)
+
+  ! Nodes:
+  do j1 = 1, nnod
+    do j2 = 1, 3
+      X(j2)=XN0(j1,j2)
+    end do
+    call vproteut(X,CEU,SEU)
+    do j2 = 1, 3
+      XN(j1,j2)=X(j2)
+    end do
+  end do
+
+  ! Normals:
+  do j1 = 1, ntri
+    do j2 = 1, 3
+      X(j2)=NT0(j1,j2)
+    end do
+    call vproteut(X,CEU,SEU)
+    do j2 = 1, 3
+      NT(j1,j2)=X(j2)
+    end do
+  end do
+
+end subroutine pranor
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -3,11 +3,12 @@ PROGRAM GS
   use sirisconstants
   use sirismath
   use sirisgeometry
+  use sirismesh
   use sirisgaussiansphere
   
   integer :: lmin, lmax, nnod, ntri, ntr, j1, j2, j3, infu, nsample, seed
   integer, dimension(:,:), pointer :: IT
-  real(kind=dp) :: x, nuc, sig, beta, rmax, vol, ell, cs2d, cs4d
+  real(kind=dp) :: nuc, sig, beta, rmax, vol, ell, cs2d, cs4d
   real(kind=dp), dimension(0:256) :: CSCF
   real(kind=dp), dimension(:), pointer :: MUN, PHIN
   real(kind=dp), dimension(:,:), allocatable :: XN0
@@ -98,7 +99,7 @@ PROGRAM GS
     ! Compute volume
     vol = compute_volume(XN0,IT,ntri)
     write(output_unit,'(A,I0,A,G12.6)') "Sample ", j1, ", volume ", vol
-    
+        
     ! Save geometry
     if(nsample == 1) then
       write(cfn,'(A)') trim(fbn)

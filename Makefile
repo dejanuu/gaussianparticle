@@ -7,14 +7,14 @@ CPPCOMP ?= g++
 # GNU Compiler suite options
 ## Fortran
 ### Required options for gfortran
-FOPT = -ffree-form -std=f2008
+FOPT = -ffree-form -std=f2008 -fimplicit-none
 ### Optional choices
 #### For developing
-#FOPT += -fimplicit-none -fcheck=bounds,pointer -Wall -Wno-maybe-uninitialized
+#FOPT += -fcheck=bounds,pointer -Wall -Wno-maybe-uninitialized
 #### Minor optimization
-#FOPT += -O1
+FOPT += -O1
 #### Major optimization
-FOPT += -Ofast -mtune=native -ffpe-summary=none
+#FOPT += -Ofast -mtune=native -ffpe-summary=none
 #### For debugging
 #FOPT += -g -fbacktrace -ffpe-trap=invalid,zero,overflow,underflow
 ## C++
@@ -29,7 +29,7 @@ COPT += -Ofast -mtune=native -frounding-math
 
 MKDIR = mkdir -p
 DIRECTORIES = lib mod
-LIBFILENAMES = sirisconstants sirismath sirismaterial sirisnumint sirisgeometry sirisgaussiansphere sirisray sirisradtrans
+LIBFILENAMES = sirisconstants sirisutils sirismath sirismaterial sirisnumint sirisgeometry sirismesh sirisgaussiansphere sirisray sirisradtrans
 MPFFILES = mathroutines splinetools sirisinterface
 MPCFILES =  detector geometry inputreader materials meshreader mray rng offreader outputwriter physicsengine sray tracer smaterial
 
