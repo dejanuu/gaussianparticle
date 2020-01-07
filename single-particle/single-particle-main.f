@@ -15,7 +15,7 @@ PROGRAM singleparticle
     extmeshtype = -1, cstat
   integer, dimension(50) :: PBOX, NISBOX
   integer, dimension(:,:), pointer :: IT
-  logical :: ignabs = .false., extmesh = .false.
+  logical :: ignabs = .false., extmesh = .false., trans_vert = .false., scale_vert = .false.
   real(kind=dp):: wrayh, wraym, norm, ran2, mui, nui, phii, sphii, cphii, &
     rmax, r0, phi0, qsca,qabs,qin,qout,qis,qbox,abscf,len,lenabs,kekf,beta,nie, &
     nk,Fstop,bin,bin0,norml,wray, wavelen, xa, m2real, &
@@ -87,6 +87,10 @@ PROGRAM singleparticle
   read(fu, *, IOSTAT=cstat) extmeshtype
   if(cstat==0 .and. extmeshtype > 0) then
     extmesh = .true.
+    read(fu, *) j1   ! Translate vertex mean to origin
+    if(j1==1) trans_vert = .true.
+    read(fu, *) j1    ! Scale vertex mean radius to one
+    if(j1==1) scale_vert = .true.
     read(fu, *) meshfile  ! External mesh geometry file name
     npar=1
     close(fu)
@@ -129,13 +133,17 @@ PROGRAM singleparticle
     call sgscf(ACF,BCF,SCFSTD,lmax)
     call rgstd(XN0,NT0,MUN,PHIN,ACF,BCF,rmax,beta,IT,nnod,ntri,lmax)
     
-    ! TEMP
-    call save_off("GS-current",XN0,IT,nnod,ntri)
-  
   ! Initialization of the external mesh geometry:
   else
   
-    call read_off(meshfile,XN0,IT,NT0,nnod,ntri,cstat)
+    if(extmeshtype == 1) then
+      call read_off(meshfile,XN0,IT,NT0,nnod,ntri,cstat)
+    else if(extmeshtype == 2) then
+      call read_obj(meshfile,XN0,IT,NT0,nnod,ntri,cstat)
+    else
+      write(error_unit,'(A,I0)') 'Unknown geometry type: ', extmeshtype
+      stop
+    end if
     if(cstat /= 0) then
       write(error_unit,*) 'Error in reading the mesh geometry from file'
       stop
@@ -143,23 +151,41 @@ PROGRAM singleparticle
     
     allocate(XN(nnod,3), NT(ntri,3))
     
-    ! Translate vertex mean to origin, scale vertices to mean radius of one, 
-    ! compute maximum radius
-    X(:) = 0.0_dp
-    do j1=1,nnod
-      X(1) = X(1) + XN0(j1,1)
-      X(2) = X(2) + XN0(j1,2)
-      X(3) = X(3) + XN0(j1,3)
-    end do
-    X(1) = X(1)/nnod
-    X(2) = X(2)/nnod
-    X(3) = X(3)/nnod
+    if(trans_vert) then
+      ! Translate vertex mean to origin
+      X(:) = 0.0_dp
+      do j1=1,nnod
+        X(1) = X(1) + XN0(j1,1)
+        X(2) = X(2) + XN0(j1,2)
+        X(3) = X(3) + XN0(j1,3)
+      end do
+      X(1) = X(1)/nnod
+      X(2) = X(2)/nnod
+      X(3) = X(3)/nnod
+      do j1=1,nnod
+        XN0(j1,1) = XN0(j1,1)-X(1)
+        XN0(j1,2) = XN0(j1,2)-X(2)
+        XN0(j1,3) = XN0(j1,3)-X(3)
+      end do
+    end if
     
-    r0 = 0.0_dp
+    if(scale_vert) then
+      ! Scale vertices to mean radius of one
+      r0 = 0.0_dp
+      do j1=1,nnod
+        r0 = r0 + sqrt(XN0(j1,1)**2+XN0(j1,2)**2+XN0(j1,3)**2)
+      end do
+      r0 = r0/nnod
+      do j1=1,nnod
+        XN0(j1,1) = XN0(j1,1)/r0
+        XN0(j1,2) = XN0(j1,2)/r0
+        XN0(j1,3) = XN0(j1,3)/r0
+      end do
+    end if
+
+    ! Compute maximum radius
+    rmax = 0.0_dp
     do j1=1,nnod
-      XN0(j1,1) = XN0(j1,1)-X(1)
-      XN0(j1,2) = XN0(j1,2)-X(2)
-      XN0(j1,3) = XN0(j1,3)-X(3)
       r0 = XN0(j1,1)**2+XN0(j1,2)**2+XN0(j1,3)**2
       if(rmax < r0) rmax = r0
     end do

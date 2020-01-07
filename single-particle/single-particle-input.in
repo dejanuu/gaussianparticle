@@ -1,5 +1,5 @@
-1000      ! number of rays
-10        ! number of sample particles
+50000     ! number of rays
+1         ! number of sample particles
 1.0d-4    ! Minimum relative flux
 21        ! Max internal chord
 21        ! Max external chord
@@ -11,7 +11,7 @@
 1.5E+000  ! wavelength in micrometers
 200.0     ! Mean radius (in micrometers)
 1         ! run identification number
-0         ! Internal medium: 1=yes
+1         ! Internal medium: 1=yes
 1         ! Scattering matrix: input(1), Rayleigh(2)
 0.549069  ! Internal medium: single-scattering albedo
 53.33     ! Internal medium: mean free path (in micrometers)
@@ -26,6 +26,8 @@
 4.0       ! Power law index for C_1 correlation
 10        ! Maximum degree in C_1, C_2, C_3
 30        ! Number of rows in an octant
-test      ! prefix for output file
-1         ! external input mesh type: 0=no mesh, 1=OFF
-siris-output.off  ! external mesh file name
+test1     ! prefix for output file
+0         ! external input mesh type: 0=no mesh, 1=OFF, 2=OBJ
+0         ! Translate vertex mean to origin: 0=no, 1=yes
+0         ! Scale vertex mean radius to one: 0=no, 1=yes
+GS-geom.off  ! external mesh file name

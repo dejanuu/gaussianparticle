@@ -868,8 +868,6 @@ subroutine pmatrix1_single(P,np,argnum)
   integer :: j1, fu, argn
   real(kind=dp) :: p11, p12, p22, p33, p34, p44, the
   character(len=file_name_length) :: infile
-  
-  WRITE(*,*) 'called'
 
   ! Reset:
   P(:,:,:)=0.0_dp

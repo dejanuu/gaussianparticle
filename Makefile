@@ -12,9 +12,9 @@ FOPT = -ffree-form -std=f2008 -fimplicit-none
 #### For developing
 #FOPT += -fcheck=bounds,pointer -Wall -Wno-maybe-uninitialized
 #### Minor optimization
-FOPT += -O1
+#FOPT += -O1
 #### Major optimization
-#FOPT += -Ofast -mtune=native -ffpe-summary=none
+FOPT += -Ofast -mtune=native -ffpe-summary=none
 #### For debugging
 #FOPT += -g -fbacktrace -ffpe-trap=invalid,zero,overflow,underflow
 ## C++
