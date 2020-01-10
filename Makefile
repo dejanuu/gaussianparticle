@@ -14,7 +14,7 @@ FOPT = -ffree-form -std=f2008 -fimplicit-none
 #### Minor optimization
 #FOPT += -O1
 #### Major optimization
-FOPT += -Ofast -mtune=native -ffpe-summary=none
+FOPT += -Ofast -mtune=native
 #### For debugging
 #FOPT += -g -fbacktrace -ffpe-trap=invalid,zero,overflow,underflow
 ## C++

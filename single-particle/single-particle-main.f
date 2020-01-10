@@ -91,7 +91,7 @@ PROGRAM singleparticle
     if(j1==1) trans_vert = .true.
     read(fu, *) j1    ! Scale vertex mean radius to one
     if(j1==1) scale_vert = .true.
-    read(fu, *) meshfile  ! External mesh geometry file name
+    read(fu, '(A)') meshfile  ! External mesh geometry file name
     npar=1
     close(fu)
   end if
