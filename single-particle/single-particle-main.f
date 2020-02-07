@@ -42,7 +42,7 @@ PROGRAM singleparticle
   complex(kind=dp), dimension(3) :: HLOUT, HROUT, HLIN, HRIN
   complex(kind=dp), dimension(3,50) :: HLBOX, HRBOX    
   character(len=1) :: inhmg
-  character(len=file_name_length) :: fname, fname2, infile, meshfile
+  character(len=file_name_length) :: fname, fname2, infile, meshfile, tempfn
 
   ! Read inputs from file:
   if(command_argument_count() == 0) then
@@ -91,10 +91,11 @@ PROGRAM singleparticle
     if(j1==1) trans_vert = .true.
     read(fu, *) j1    ! Scale vertex mean radius to one
     if(j1==1) scale_vert = .true.
-    read(fu, '(A)') meshfile  ! External mesh geometry file name
+    read(fu, '(A)') tempfn  ! External mesh geometry file name
+    call strip_string(tempfn,meshfile,j1)
     npar=1
-    close(fu)
   end if
+  close(fu)
   
   if(extmesh) then
     write(output_unit,'(A)') 'Geometric optics approximation for triangulated mesh particle...'
