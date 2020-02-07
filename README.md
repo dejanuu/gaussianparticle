@@ -97,8 +97,8 @@ With both options, you will need the C++-libraries GCAL (https://www.cgal.org/) 
 
 Run from command line. Give the name of the input file as command line argument, e.g.,
 
-	cd multi-particle
-	./sirismp ???
+	cd multi-particle/example
+	../sirismp input.in
 
 The different parameter options are commented in the example input file.
 
