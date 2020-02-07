@@ -21,7 +21,7 @@ FOPT += -Ofast -mtune=native
 ### Required options for C++
 COPT = -std=c++11 -Wno-narrowing
 #### Minor optimization
-#FOPT += -O1
+#COPT += -O1
 #### Major optimization
 COPT += -Ofast -mtune=native -frounding-math
 
