@@ -19,7 +19,7 @@ FOPT += -Ofast -mtune=native
 #FOPT += -g -fbacktrace -ffpe-trap=invalid,zero,overflow,underflow
 ## C++
 ### Required options for C++
-COPT = -std=c++11 -Wno-narrowing
+COPT = -std=c++14 -Wno-narrowing
 #### Minor optimization
 #COPT += -O1
 #### Major optimization
@@ -48,7 +48,7 @@ GS : directories siris4lib GS/GS-main.f
 	$(COMP) $(FOPT) -o GS/GS -J mod -L lib GS/GS-main.f -lsiris4
 
 multiparticle : directories siris4lib $(addprefix multi-particle/,$(addsuffix .o,$(MPCFILES))) $(addprefix multi-particle/,$(addsuffix .o,$(MPFFILES))) multi-particle/main.cpp
-	$(CPPCOMP) $(COPT) -o multi-particle/sirismp $(addprefix multi-particle/,$(addsuffix .o,$(MPCFILES))) $(addprefix multi-particle/,$(addsuffix .o,$(MPFFILES)))  multi-particle/main.cpp -lCGAL -L lib -lsiris4 -lgfortran -lquadmath
+	$(CPPCOMP) $(COPT) -o multi-particle/sirismp $(addprefix multi-particle/,$(addsuffix .o,$(MPCFILES))) $(addprefix multi-particle/,$(addsuffix .o,$(MPFFILES)))  multi-particle/main.cpp -L lib -lsiris4 -lgfortran -lquadmath
 
 siris4lib : directories lib/libsiris4.a
 	
