@@ -27,7 +27,7 @@ class MeshReader{
             std::cout << create_heading(std::string("READ MESH FROM: ")+fname,HEADINGS::HEADING) << std::endl;
             try{
                 if(hasEnding(fname,".off")){
-                    OFFReader::read_file(fname,points,triangles,material_inds,centralize);
+                    OFFReader().read_file(fname,points,triangles,material_inds,centralize);
                 }else{
                     throw std::invalid_argument("File format not supported"); 
                 } 

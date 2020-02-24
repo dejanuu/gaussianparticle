@@ -14,8 +14,6 @@
 #include <CGAL/Polyhedron_3.h>
 #include <string>
 
-const double M_PI = 3.1415926535897932;
-
 
 enum HEADINGS : int {
     HEADING= 100,
