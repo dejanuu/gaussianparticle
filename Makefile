@@ -20,6 +20,8 @@ FOPT += -Ofast -mtune=native
 ## C++
 ### Required options for C++
 COPT = -std=c++14 -Wno-narrowing
+#### For developing
+#COPT += -g
 #### Minor optimization
 #COPT += -O1
 #### Major optimization

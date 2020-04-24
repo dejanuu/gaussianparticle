@@ -1,6 +1,8 @@
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
 
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 #include <CGAL/Simple_cartesian.h>
 #include <CGAL/AABB_tree.h>

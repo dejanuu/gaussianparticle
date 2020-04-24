@@ -13,7 +13,7 @@ subroutine scatter_surface(KE1, KF1, HL1, HR1, MA1, F1, preserve1, N,   m1re,m1i
    
     complex(c_double) :: HLF1(3),HRF1(3),HLF2(3),HRF2(3)
     complex(c_double) :: m1,m2
-    real(c_double) :: nk,coll
+    real(c_double) :: nk
     integer :: totref
 
     call convertToSiris(HL1,HR1,HLF1,HRF1,m1re,m1im,m2re,m2im,m1,m2)
@@ -99,8 +99,8 @@ subroutine incrt(I,K,EL,ER,CSRN,XP,coeffs,np,nrn,rands)
     
     
     real(kind=c_double) :: I1(4,4),K1(3),EL1(3),ER1(3),nt,c2psi,s2psi,N(3)
-    real(kind=c_double) :: rn,cthe,tmpP(6),P(4,4),phi,sthe,N1(3),T1(3),T2(3),nn,norm
-    integer :: temp,mrn,j1
+    real(kind=c_double) :: rn,cthe,tmpP(6),P(4,4),phi,sthe,T1(3),T2(3),nn,norm
+    integer :: mrn,j1
 
     ! Temporary storage:
     I1(:,:) = I(:,:)
