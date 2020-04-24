@@ -4,6 +4,7 @@ lib/*
 */*.exe
 src/*.mod
 src/*.o
+src/*.nb
 GS/*.out
 GS/*.idf
 GS/*.vtk
@@ -16,3 +17,4 @@ single-two-layer-particle/*.out
 multi-particle/*.o
 multi-particle/sirismp
 multi-particle/build/*
+test/*
