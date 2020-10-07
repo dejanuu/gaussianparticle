@@ -150,7 +150,7 @@ Kill execution after N hours
 ```
 output_file outputS.out
 ```
-Print scattering matrix elements per phase angle
+Print scattering matrix elements per scattering angle
 
 ```
 pmatrix_out pmatrix.out
