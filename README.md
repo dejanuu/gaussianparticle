@@ -100,7 +100,150 @@ Run from command line. Give the name of the input file as command line argument,
 	cd multi-particle/example
 	../sirismp input.in
 
-The different parameter options are commented in the example input file.
+The possible arguments are listed below, and are given in the file in format:
+```
+ARGUMENT VALUE
+```
+
+Possible arguments
+
+```
+nrays 1000000
+```
+Number of rays
+
+```
+max_scattering 200
+```
+Maximum number of scattering events
+
+```
+killswitch_start 70
+```
+Prevent rays splitting to refracted and reflected (only one of these happens) rays after N scattering events 
+
+```
+nbins 80
+```
+Number of theta angle bings
+
+```
+nbins_fine_details_start 180
+```
+This is used to print finer details at the backscattering direction
+
+```
+prevent_TR 0
+```
+Prevent total reflection creating refracted rays
+
+```
+check_time_after_nrays 1000
+```
+Check time after N rays
+
+```
+allocated_time_in_hours 9999
+```
+Kill execution after N hours
+
+```
+output_file outputS.out
+```
+Print scattering matrix elements per phase angle
+
+```
+pmatrix_out pmatrix.out
+```
+Print scattering matrix that is readable by the SIRIS (so you can use the output as an input for next round...)
+
+```
+details_out details.out
+```
+Print other details about the finished work
+
+```
+I_cutoff_limit 0.0000001
+```
+Cut off limit. When intensity of the ray goes below this limit, kill it
+
+```
+seed 0
+```
+Generate random seed for the PRNG (0), If nonzero, the given number will be used as a seed.
+
+```
+wavelen 6.283185307179586
+```
+Wavelength. Unit does not matter as long as you keep it consistent with other length parameters
+
+```
+mesh_scale 2000
+```
+Mesh file is scaled with this value. So, if the wavelenght is 6 nm, and if the mesh file has a sphere with radius 1 (dimensionless), SIRIS will compute 2000-nm-sized spehre with mesh_scale 2000.
+
+```
+mesh sphere.off
+```
+Relative path to the shape model (see below)
+
+```
+force_interaction 1
+```
+This is related to the diffuse scattering. Do we force every ray to interact with the diffusely scattering media, or do we let them go through. Without this the observer can see huge spike at the forward scattering direction.
+
+```
+beam_radius 250
+```
+The radius of the incident beam (same units as above). Negative beam size means that the entire medium is covered by the beam.
+
+```
+material1 1.0 0.0 1 1.0 0.9460290562711914 outputS_ave.out 1 ~/dists/cdfconstant04dist.txt
+```
+Define materialX, where the X is the number of the material. Supports 255 materials. It is important to note that material 0 is reserved for the surrounding media.  The format is
+```
+materialX REF_REAL REF_IMAG DIFFUSE_ON ALBEDO MEAN_FREE_PATH PATH_TO_PHASE_MATRIX EXPERIMENTAL_MFP_ON file_path
+```
+where REF_REAL is the refractive real part and REF_IMAG is the imaginary part. Material can have diffuse inclusions that are enabled by using 1 for DIFFUSE_ON. ALBEDO, MEAN_FREE_PATH and PATH_TO_PHASE_MATRIX are for the diffuse scatterers, whereas EXPERIMENTAL_MFP_ON is about the experimental mean free paths (see SIRIS2019 or SIRIS2020 paper). 
+
+```
+media REF_REAL REF_IMAG
+```
+For the surrounding medium, REF_REAL is the refractive real part and REF_IMAG is the imaginary part.
+
+**Off file**
+
+First, the mesh needs to be watertight and only have triangle faces. Only Off-file format is supported, and the materials are coded into the colors of the faces: Next, see an example of an OFF-file (read more from Wikipedia):   
+```
+OFF
+# Example
+ 
+8 6 12
+ 1.0  0.0 1.4142
+ 0.0  1.0 1.4142
+-1.0  0.0 1.4142
+ 0.0 -1.0 1.4142
+ 1.0  0.0 0.0
+ 0.0  1.0 0.0
+-1.0  0.0 0.0
+ 0.0 -1.0 0.0
+3  0 1 2  1 0 0 
+3  7 4 0  0 1 0 
+3  4 5 1  0 0 0 
+3  5 6 2  2 1 0 
+3  3 2 6  0 0 0
+3  6 5 4  1 0 0
+```
+
+Anyway, the colors are coded at lines with face information
+```
+3  0 1 2  1 0 0 
+```
+were the first '3' means that this face has 3 vertices (so triangle), then the face is made of vertices [0,1,2], which is followed by the color [1,0,0]. This color has the material coding, and this line means that the face is a surface between material 0 and 1, whereas the line
+```
+3  5 6 2  2 1 0 
+```
+has material surfaces 2 and 1. The order does not matter. So if the triangles intersected during the ray tracing have color codings [[1,0],[1,2],[1,2]], the material the ray is in is 1, because the ray tracing always starts from the material 0. Next, we encounter a triangle with encoding [1,0], meaning that the refracted ray has material coding '1' and reflected 0. The next encounter is with [1,2], and because we are in the material 1, the refracted ray must be at material 2 and so on. If the SIRIS encounters a material surface that is impossible (e.g. [[1,0],[1,2],[4,0]], where the ray encounters surface between materials 4 and 0 although the ray was in material 2, the program will stop execution and prints error about it (I hope it does). Probable causes: the object in the mesh is not watertight or has bad material coding.
 
 ### GS Gaussian spheres
 
