@@ -105,7 +105,7 @@ The possible arguments are listed below, and are given in the file in format:
 ARGUMENT VALUE
 ```
 
-Possible arguments
+Possible arguments are:
 
 ```
 nrays 1000000
