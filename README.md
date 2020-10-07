@@ -91,7 +91,7 @@ Option 2: use CMake
 	make
 	cp SIRISn ../sirismp
 
-With both options, you will need the C++-libraries GCAL (https://www.cgal.org/) and Boost (https://www.boost.org/) installed in your system.
+With both options, you will need the C++-libraries CGAL (https://www.cgal.org/) and Boost (https://www.boost.org/) installed in your system.
 
 #### Usage
 
