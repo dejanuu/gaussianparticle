@@ -4,7 +4,7 @@ MODULE SIRISRADTRANS
 !
 ! v2019-10-08
 !
-! Karri Muinonen, Timo Väisänen, Hannakaisa Lindqvist, Julia Martikainen, Antti Penttilä
+! Karri Muinonen, Timo VÃ¤isÃ¤nen, Hannakaisa Lindqvist, Julia Martikainen, Antti PenttilÃ¤
 ! Department of Physics, University of Helsinki, Finland
 
   use sirisconstants

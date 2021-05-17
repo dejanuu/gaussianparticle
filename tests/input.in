@@ -1,0 +1,22 @@
+nrays 1000
+seed 0
+centralize 0
+mesh sphere.off
+media 1.0 0.0
+material1 1.5 0.0 0
+nbins 80
+nbins_fine_details_start 180
+force_interaction 1
+ignore_absorption 0
+prevent_TR 0
+max_scattering 200
+I_cutoff_limit 0.0000001
+killswitch_start 70
+wavelen 6.2831853071795862
+mesh_scale 2000
+beam_radius -1
+check_time_after_nrays 10000
+allocated_time_in_hours 99999
+output_file S.out
+pmatrix_out pmat.out
+details_out det.out

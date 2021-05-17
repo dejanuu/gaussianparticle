@@ -474,7 +474,7 @@ subroutine incide2l(F1,KE1,KF1,HL1,HR1,MA1,F2,KE2,KF2,HL2,HR2,MA2, &
   integer, intent(out) :: totref
   integer :: j1
   real(kind=dp):: ti, ci, ct, st, t11, t12, t33, t34, r11, r12, r33, r34, &
-    mre, mim, ctl, ctr, nke, nkf, kekf1, kekf2, dm, norm1,kekf
+    mre, mim, ctl, ctr, nke, nkf, kekf1, kekf2, dm, norm1
   real(kind=dp), parameter :: dmtol=1e-10_dp, ktol=1e-10_dp
   real(kind=dp), dimension(2) :: MAI  
   real(kind=dp), dimension(3) :: KEI, KFI, T1, T2
@@ -490,223 +490,194 @@ subroutine incide2l(F1,KE1,KF1,HL1,HR1,MA1,F2,KE2,KF2,HL2,HR2,MA2, &
     else
         preventTR=0
     endif
-totref=0
-    dm=abs(m1-m2)
 
-! Total refraction:
+  totref=0
+  dm=abs(m1-m2)
 
-    if (dm.lt.dmtol) then
-        MA2(1)=MA1(1)
-        MA2(2)=MA1(2)
+  ! Total refraction:
+  if(dm < dmtol) then
+    MA2(1)=MA1(1)
+    MA2(2)=MA1(2)
 
-        KE2=KE1
-        KF2=KF1
-        HL2=HL1
-        HR2=HR1
+    KE2=KE1
+    KF2=KF1
+    HL2=HL1
+    HR2=HR1
 
-        F2=F1
-        totref=2
-        return
-    end if
+    F2=F1
+    totref=2
+    return
+  end if
 
+  ! Relative refractive index:
+  m = m2/m1
+  mre = real(m,dp)
+  mim = aimag(m)
 
-! Relative refractive index:
+  ! Incident ray:
+  MAI = MA1
+  KEI = KE1
+  KFI = KF1
+  HLI0 = HL1
+  HRI0 = HR1
+  FI = F1
 
-    m = m2/m1
-    mre = real(m,dp)
-    mim = aimag(m)
+  call prosca(nke,N,KEI)
+  call prosca(nkf,N,KFI)
 
-! Incident ray:
-
-    MAI = MA1
-    KEI = KE1
-    KFI = KF1
-    HLI0 = HL1
-    HRI0 = HR1
-    FI = F1
-
-    call prosca(nke,N,KEI)
-    call prosca(nkf,N,KFI)
-    call prosca(kekf,KEI,KFI)
-
-    if(abs(MAI(2)) .ge. ktol) then
-        do j1 = 1, 3
-            NC(j1) = cmplx(N(j1),0.0_dp,kind=dp)
-            KCI(j1) = cmplx(MAI(1)*KEI(j1),MAI(2)*KFI(j1),kind=dp)
-        end do
-    else
-        do j1 = 1, 3
-            NC(j1)=cmplx(N(j1),0.0_dp,kind=dp)
-            KCI(j1)=cmplx(MAI(1)*KEI(j1),0.0_dp,kind=dp)
-        end do
-    end if
-
-! OBLIQUE INCIDENCE:
-
-    if (nke .gt. -0.9999999_dp) then
-
-! Two unit tangent vectors at the surface:
-
-        ti = sqrt(1.0_dp - nke**2)
-        norm1 = 0.0_dp
-        do j1 = 1, 3
-            T2(j1) = (KEI(j1)-nke*N(j1))/ti
-            norm1 = norm1 + T2(j1)**2
-        end do
-        norm1 = sqrt(norm1)
-        do j1 = 1, 3
-            T2(j1) = T2(j1)/norm1
-        end do
-        call provecn(T1,T2,N)
-
-! Complex unit vectors in the plane of incidence and
-! rotation of the input Mueller matrix:
-
-        call proveccn(HRI,KCI,NC)
-        call proveccn(HLI,HRI,KCI)
-        call frotlc2l(F1,FI,HLI,HRI,HLI0,HRI0)
-
-! Unit direction vectors for the reflected and refracted ray:
-
-        call snel2l(KEI,KFI,MAI,KE1,KF1,MA1,KE2,KF2,MA2,N,T1,T2, &
-                fki,fkt,nke,nkf,m1,m2,st,totref0,preventTR)
-
-! Complex unit vectors of the reflected rays:
-
-        if (abs(MA1(2)) .ge. ktol) then
-            KC1 = cmplx(MA1(1)*KE1, MA1(2)*KF1,kind=dp)
-        else
-            KC1 = cmplx(MA1(1)*KE1, 0.0_dp,kind=dp)
-        end if
-
-        call proveccn(HR1,KC1,NC)
-        call proveccn(HL1,HR1,KC1)
-
-! Total Fresnel reflection, new reflected Mueller matrix:
-
-        if (abs(st) >= 1.0_dp) then
-           ci = -nke
-           ct = sqrt(st**2-1.0_dp)
-           frl = cmplx(mre*ci,-ct,kind=dp)/cmplx(mre*ci,ct,kind=dp)
-           frr = cmplx(ci,-mre*ct,kind=dp)/cmplx(ci,mre*ct,kind=dp)
-           r11 = 1.0_dp
-           r12 = 0.0_dp
-           r33 = real(frl*conjg(frr),dp)
-           r34 = aimag(frl*conjg(frr))
-           call reflect(F1,r11,r12,r33,r34)
-           totref = 1
-           return
-        end if
-
-! Ordinary Fresnel refraction and reflection, 
-! new refracted and reflected Mueller matrices:
-
-
-        
-        
-        frr = RR(fki,fkt)
-        frl = RL(m1,m2,fki,fkt)
-        ftr = TR(fki,fkt)
-        ftl = TL(m1,m2,fki,fkt)
-        
-
-        r11 = 0.5_dp*(abs(frl)**2+abs(frr)**2)
-        r12 = 0.5_dp*(abs(frl)**2-abs(frr)**2)
-        r33 = real(frl*conjg(frr),dp)
-        r34 = aimag(frl*conjg(frr))
-
-
-        ctr=(1.0_dp-abs(frr)**2)/abs(ftr)**2
-        ctl=(1.0_dp-abs(frl)**2)/abs(ftl)**2
-
-        if(ctr>=0.0_dp .and. ctl>=0.0_dp) then
-            t11 = 1.0_dp-r11
-            t12 = 0.5_dp*(ctl*abs(ftl)**2-ctr*abs(ftr)**2)
-            t33 = sqrt(ctl*ctr)*real(ftl*conjg(ftr),dp)
-            t34 = sqrt(ctl*ctr)*aimag(ftl*conjg(ftr))
-
-            call refract(F1,F2,t11,t12,t33,t34)
-
-            if (abs(MA2(2)) .ge. ktol) then
-                KC2 = cmplx(MA2(1)*KE2, MA2(2)*KF2,kind=dp)
-            else
-                KC2 = cmplx(MA2(1)*KE2, 0.0_dp,kind=dp)
-            end if
-
-            call proveccn(HR2,KC2,NC)
-            call proveccn(HL2,HR2,KC2)
-        else
-            totref0 = .true.
-        endif
-
-        call reflect(F1,r11,r12,r33,r34)
-
-
-        if(totref0) then
-            F2=FI-F1
-            totref=3
-        endif
-    
-! NORMAL INCIDENCE:
-
+  if(abs(MAI(2)) >= ktol) then
+    do j1 = 1, 3
+      NC(j1) = cmplx(N(j1),0.0_dp,dp)
+      KCI(j1) = cmplx(MAI(1)*KEI(j1),MAI(2)*KFI(j1),dp)
+    end do
   else
+    do j1 = 1, 3
+      NC(j1)=cmplx(N(j1),0.0_dp,dp)
+      KCI(j1)=cmplx(MAI(1)*KEI(j1),0.0_dp,dp)
+    end do
+  end if
 
-! Two unit tangent vectors at the surface:
+  ! OBLIQUE INCIDENCE:
+  if(nke > -0.9999999_dp) then
+    ! Two unit tangent vectors at the surface:
+    ti = sqrt(1.0_dp - nke**2)
+    norm1 = 0.0_dp
+    do j1 = 1, 3
+      T2(j1) = (KEI(j1)-nke*N(j1))/ti
+      norm1 = norm1 + T2(j1)**2
+    end do
+    norm1 = sqrt(norm1)
+    do j1 = 1, 3
+      T2(j1) = T2(j1)/norm1
+    end do
+    call provecn(T1,T2,N)
 
-        T1 = real(HRI0,dp)
-        call provecn(T2,T1,KEI)
-        call provecn(T1,N,T2)
+    ! Complex unit vectors in the plane of incidence and
+    ! rotation of the input Mueller matrix:
+    call provecn(HRI,KCI,NC)
+    call provecn(HLI,HRI,KCI)
+    call frotlc2l(F1,FI,HLI,HRI,HLI0,HRI0)
 
-! Complex unit vectors in the plane of incidence and
-! rotation of the input Mueller matrix:
+    ! Unit direction vectors for the reflected and refracted ray:
+    call snel2l(KEI,KFI,MAI,KE1,KF1,MA1,KE2,KF2,MA2,N,T2, &
+            fki,fkt,nke,nkf,m1,m2,st,totref0,preventTR)
 
-        call proveccn(HRI,KCI,NC)   
-        call proveccn(HLI,HRI,KCI)
-        call frotlc2l(F1,FI,HLI,HRI,HLI0,HRI0)
+    ! Complex unit vectors of the reflected rays:
+    if(abs(MA1(2)) >= ktol) then
+      KC1 = cmplx(MA1(1)*KE1, MA1(2)*KF1,dp)
+    else
+      KC1 = cmplx(MA1(1)*KE1, 0.0_dp,dp)
+    end if
 
-! Unit direction vectors for the reflected and refracted ray:
+    call provecn(HR1,KC1,NC)
+    call provecn(HL1,HR1,KC1)
 
-        call snel2l(KEI,KFI,MAI,KE1,KF1,MA1,KE2,KF2,MA2,N,T1,T2, &
-                 fki,fkt,nke,nkf,m1,m2,st,totref0,preventTR)
+    ! Total Fresnel reflection, new reflected Mueller matrix:
+    if(abs(st) >= 1.0_dp) then
+      ci = -nke
+      ct = sqrt(st**2-1.0_dp)
+      frl = cmplx(mre*ci,-ct,kind=dp)/cmplx(mre*ci,ct,dp)
+      frr = cmplx(ci,-mre*ct,kind=dp)/cmplx(ci,mre*ct,dp)
+      r11 = 1.0_dp
+      r12 = 0.0_dp
+      r33 = real(frl*conjg(frr),dp)
+      r34 = aimag(frl*conjg(frr))
+      call reflect(F1,r11,r12,r33,r34)
+      totref = 1
+      return
+    end if
 
-! Complex unit vectors of the reflected rays:
+    ! Ordinary Fresnel refraction and reflection, 
+    ! new refracted and reflected Mueller matrices:
+    frr = RR(fki,fkt)
+    frl = RL(m1,m2,fki,fkt)
+    ftr = TR(fki,fkt)
+    ftl = TL(m1,m2,fki,fkt)
+    
+    ctr=(1.0_dp-abs(frr)**2)/abs(ftr)**2
+    ctl=(1.0_dp-abs(frl)**2)/abs(ftl)**2
 
-        call prosca(kekf1,KE1,KF1)
-        if (abs(kekf1) .lt. 0.9999999_dp) then
-            KC1 = cmplx(MA1(1)*KE1, MA1(2)*KF1,kind=dp)
-            call proveccn(HR1,KC1,NC)
-            call proveccn(HL1,HR1,KC1)
-        else
-            HL1 = -HLI0
-            HR1 = HRI0
-        end if
+    r11 = 0.5_dp*(abs(frl)**2+abs(frr)**2)
+    r12 = 0.5_dp*(abs(frl)**2-abs(frr)**2)
+    r33 = real(frl*conjg(frr),dp)
+    r34 = aimag(frl*conjg(frr))
 
-! Complex unit vectors of the refracted rays:
+    t11 = 1.0_dp-r11
+    t12 = 0.5_dp*(ctl*abs(ftl)**2-ctr*abs(ftr)**2)
+    t33 = sqrt(ctl*ctr)*real(ftl*conjg(ftr),dp)
+    t34 = sqrt(ctl*ctr)*aimag(ftl*conjg(ftr))
 
-        call prosca(kekf2,KE2,KF2)
-        if (abs(kekf2) .lt. 0.9999999_dp) then
-            KC2 = cmplx(MA2(1)*KE2, MA2(2)*KF2,kind=dp)
-            call proveccn(HR2,KC2,NC)
-            call proveccn(HL2,HR2,KC2)
-        else
-          HL2 = HLI0       
-          HR2 = HRI0
-        end if
+    call refract(F1,F2,t11,t12,t33,t34)
+    call reflect(F1,r11,r12,r33,r34)
 
-! Ordinary Fresnel refraction and reflection, 
-! new refracted and reflected Mueller matrices:
+    !  Complex unit vectors of the refracted rays:
+    if(abs(MA2(2)) >= ktol) then
+      KC2 = cmplx(MA2(1)*KE2, MA2(2)*KF2,dp)
+    else
+      KC2 = cmplx(MA2(1)*KE2, 0.0_dp,dp)
+    end if
 
-        r11 = abs(RL(m1,m2,fki,fkt))**2
-        r12 = 0.0_dp
-        r33 = -r11
-        r34 = 0.0_dp
-        t11 = 1.0_dp-r11
-        t12 = 0.0_dp
-        t33 = t11
-        t34 = 0.0_dp
+    call provecn(HR2,KC2,NC)
+    call provecn(HL2,HR2,KC2)
 
-        call refract(F1,F2,t11,t12,t33,t34)
-        call reflect(F1,r11,r12,r33,r34)
+    if(totref0) then
+      !!MUISTA KERÄTÄ ENERGIA TALTEEN JOSSAIN
+      !!TAI ANNA TAKAISIN F1:lle
+      totref=1
+    endif    
+
+  ! NORMAL INCIDENCE:
+  else
+    ! Two unit tangent vectors at the surface:
+    T1 = real(HRI0,dp)
+    call provecn(T2,T1,KEI)
+    call provecn(T1,N,T2)
+
+    ! Complex unit vectors in the plane of incidence and
+    ! rotation of the input Mueller matrix:
+    call provecn(HRI,KCI,NC)   
+    call provecn(HLI,HRI,KCI)
+    call frotlc2l(F1,FI,HLI,HRI,HLI0,HRI0)
+
+    ! Unit direction vectors for the reflected and refracted ray:
+    call snel2l(KEI,KFI,MAI,KE1,KF1,MA1,KE2,KF2,MA2,N,T2, &
+             fki,fkt,nke,nkf,m1,m2,st,totref0)
+
+    ! Complex unit vectors of the reflected rays:
+    call prosca(kekf1,KE1,KF1)
+    if(abs(kekf1) < 0.9999999_dp) then
+      KC1 = cmplx(MA1(1)*KE1, MA1(2)*KF1,dp)
+      call provecn(HR1,KC1,NC)
+      call provecn(HL1,HR1,KC1)
+    else
+      HL1 = -HLI0
+      HR1 = HRI0
+    end if
+
+    ! Complex unit vectors of the refracted rays:
+    call prosca(kekf2,KE2,KF2)
+    if (abs(kekf2) < 0.9999999_dp) then
+      KC2 = cmplx(MA2(1)*KE2, MA2(2)*KF2,dp)
+      call provecn(HR2,KC2,NC)
+      call provecn(HL2,HR2,KC2)
+    else
+      HL2 = HLI0
+      HR2 = HRI0
+    end if
+
+    ! Ordinary Fresnel refraction and reflection, 
+    ! new refracted and reflected Mueller matrices:
+    r11 = abs(RL(m1,m2,fki,fkt))**2
+    r12 = 0.0_dp
+    r33 = -r11
+    r34 = 0.0_dp
+    t11 = 1.0_dp-r11
+    t12 = 0.0_dp
+    t33 = t11
+    t34 = 0.0_dp
+
+    call refract(F1,F2,t11,t12,t33,t34)
+    call reflect(F1,r11,r12,r33,r34)
   end if 
 
 end subroutine incide2l
@@ -1473,22 +1444,23 @@ end subroutine snel
 ! directions for the reflected (KE1, KF1) and refracted inhomogeneous plane
 ! waves (KE2, KF2).
 ! Version for 2-layer code
-subroutine snel2l(KEI,KFI,MAI,KE1,KF1,MA1,KE2,KF2,MA2,N,T1,T2, &
+subroutine snel2l(KEI,KFI,MAI,KE1,KF1,MA1,KE2,KF2,MA2,N,T2, &
                      fki,fkt,nke,nkf,m1,m2,sthe,totref,preventTR_in)
+
   real(kind=dp), dimension(3), intent(in) :: KEI, KFI 
   real(kind=dp), dimension(2), intent(in) :: MAI
   real(kind=dp), dimension(3), intent(inout) :: KE1, KF1
   real(kind=dp), dimension(2), intent(out) :: MA1
   real(kind=dp), dimension(3), intent(inout) :: KE2, KF2
   real(kind=dp), dimension(2), intent(out) :: MA2
-  real(kind=dp), dimension(3), intent(in) :: N, T1,T2
+  real(kind=dp), dimension(3), intent(in) :: N, T2
   logical, intent(out) :: totref
   complex(kind=dp), intent(out) :: fki, fkt
   real(kind=dp), intent(in) :: nke, nkf
   complex(kind=dp), intent(in) :: m1, m2
   real(kind=dp), intent(out) :: sthe
   real(kind=dp) :: n1, k1, n2, k2, ns, ks, d1, d2, &
-    nke2, nkf2, tkf, cthe, cpsi, spsi, cphi, q1, q2, dd
+    nke2, nkf2, tkf, cthe, cpsi, spsi, cphi, q1, q2
   integer :: j1
   real(kind=dp) :: Na, Nb, norm1, norm2
   real(kind=dp), dimension(3) :: T3
@@ -1500,203 +1472,154 @@ subroutine snel2l(KEI,KFI,MAI,KE1,KF1,MA1,KE2,KF2,MA2,N,T1,T2, &
      preventTR=0
   endif
 
-  totref = .false.
-! Refractive indices:
 
-  n1 = real(m1)
+  totref = .false.
+
+  ! Refractive indices:
+  n1 = real(m1,dp)
   k1 = aimag(m1)
   d1 = n1**2-k1**2
 
-  n2 = real(m2)
+  n2 = real(m2,dp)
   k2 = aimag(m2)
   d2 = n2**2-k2**2
 
-! Apparent refractive index in medium 1; auxiliary
-! products of refractive index and sines:
-
+  ! Apparent refractive index in medium 1; auxiliary
+  ! products of refractive index and sines:
   MA1 = MAI
 
-  if (abs(nke).lt.1.0_dp) then
+  if(abs(nke) < 1.0_dp) then
     ns = MAI(1)*sqrt(1.0_dp-nke**2)
   else
     ns = 0.0_dp
   end if
 
-  if (abs(nkf) .lt. 1.0_dp) then
+  if (abs(nkf) < 1.0_dp) then
     ks = MAI(2)*sqrt(1.0_dp-nkf**2)
   else
     ks = 0.0_dp
   end if
 
-! Tangent vector in the plane perpendicular
-! to constant amplitude; azimuthal angle between
-! the planes of constant amplitude and phase:
-
-    if (nkf .gt. -0.9999999_dp) then
-        tkf = sqrt(1.0_dp-nkf**2)
-        norm1 = 0.0_dp
-        do j1 = 1, 3
-            T3(j1) = (KFI(j1) - nkf*N(j1))/tkf
-            norm1 = norm1 + T3(j1)**2
-        end do
-        norm1 = sqrt(norm1)
-        do j1 = 1, 3
-            T3(j1) = T3(j1)/norm1
-        end do
-        call prosca(cphi,T2,T3)
-    else
-        T3 = T2
-        cphi = 1.0_dp
-    end if
-
-! Apparent refractive index in medium 2:
-
-
-    
-    if(abs(nke)>=1.0_dp) then
-        Na=0.0_dp
-        dd=0.0_dp
-    else
-        Na=MAI(1)**2*(1.0_dp-nke**2)
-        dd = sqrt(1.0_dp-nke**2)
-    endif
-    
-    if(abs(nkf)>=1.0_dp) then
-        Nb=0.0_dp
-    else
-        Nb=MAI(2)**2*(1.0_dp-nkf**2)
-    endif
-
-
-    q1 = (ns**2+ks**2+d2)**2 - &
-        4.0_dp*((ns*ks)**2+d2*ns**2-(n2*k2-ns*ks*cphi)**2)
-    q2 = ns**2+ks**2+d2
-   
-
-    !tmp = sqrt(0.5_dp*(q2+sqrt(q1)))
-    !write(6,*) tmp
-
-    !tmp = sqrt(0.5_dp*(q2+sqrt(q1)))
-    !if(tmp**2>d2) then
-    !    tmp2 = sqrt(tmp**2-d2)
-    !    tmp3 = sqrt(0.5_dp*(q2+sqrt(q1))-d2)
-    !else
-    !    tmp2=0.0_dp
-    !    tmp3=0.0_dp
-    !endif
-
-    q1 = Na**2+Nb**2+d2**2-2.0_dp*Na*d2+2.0_dp*Nb*d2 &
-         -2.0_dp*Na*Nb+4.0_dp*(n2*k2)**2- &
-        8.0_dp*(ns*ks*cphi*n2*k2)+4.0_dp*Na*Nb*cphi**2
-    q2 = Na+Nb+d2
-    
-    
-
-    MA2(1) = sqrt(0.5_dp*(q2+sqrt(q1)))
-
-    !write(6,*) tmp-MA2(1),tmp,MA2(1)
-
-
-    if((MA1(2)<epsilon(k2) .and. k2<epsilon(k2)) .or. 0.5_dp*(q2+sqrt(q1))-d2<epsilon(q1)) then
-        MA2(1) = n2
-        MA2(2) = 0.0_dp
-    else
-        MA2(2) = sqrt(0.5_dp*(q2+sqrt(q1))-d2)
-    endif
-
-
-    !write(6,*) MA1
-    !write(6,*) MA2,sqrt(0.5_dp*(q2-sqrt(q1))),0.5_dp*(q2+sqrt(q1))-d2
-
- ! Unit direction vectors of for the reflected ray:
-    norm1 = 0.0_dp
-    norm2 = 0.0_dp
-    do j1 = 1, 3
-        KE1(j1)=KEI(j1)-2.0_dp*nke*N(j1)
-        KF1(j1)=KFI(j1)-2.0_dp*nkf*N(j1)
-        norm1=norm1+KE1(j1)**2
-        norm2=norm2+KF1(j1)**2
-    end do
-    norm1=sqrt(norm1)
-    norm2=sqrt(norm2)
-
-    do j1 = 1, 3
-        KE1(j1)=KE1(j1)/norm1
-        KF1(j1)=KF1(j1)/norm2
-    end do
-
-    !if (abs(k1) .lt. ktol) then
-    !    KF1=KE1
-    !end if
-
-
-! Unit direction vectors of for the refracted ray,
-! total reflection:
-
-    sthe = ns/MA2(1)
-    if (sthe >= 1.0_dp) then
-        !totref=.true.
-        return
-    end if
-
-
-    cthe = sqrt(1.0_dp-sthe**2)
+  ! Tangent vector in the plane perpendicular
+  ! to constant amplitude; azimuthal angle between
+  ! the planes of constant amplitude and phase:
+  if (nkf > -0.9999999_dp) then
+    tkf = sqrt(1.0_dp-nkf**2)
     norm1 = 0.0_dp
     do j1 = 1, 3
-        KE2(j1) = sthe*T2(j1) - cthe*N(j1)
-        norm1 = norm1+KE2(j1)**2
+      T3(j1) = (KFI(j1) - nkf*N(j1))/tkf
+      norm1 = norm1 + T3(j1)**2
     end do
     norm1 = sqrt(norm1)
     do j1 = 1, 3
-        KE2(j1) = KE2(j1)/norm1
+      T3(j1) = T3(j1)/norm1
     end do
+    call prosca(cphi,T2,T3)
+  else
+    T3 = T2
+    cphi = 1.0_dp
+  end if
+
+  ! Apparent refractive index in medium 2:    
+  if(abs(nke) >= 1.0_dp) then
+    Na=0.0_dp
+  else
+    Na=MAI(1)**2*(1.0_dp-nke**2)
+  endif
+
+  if(abs(nkf) >= 1.0_dp) then
+    Nb=0.0_dp
+  else
+    Nb=MAI(2)**2*(1.0_dp-nkf**2)
+  endif
+
+  q1 = (ns**2+ks**2+d2)**2 - &
+      4.0_dp*((ns*ks)**2+d2*ns**2-(n2*k2-ns*ks*cphi)**2)
+  q2 = ns**2+ks**2+d2
    
+  q1 = Na**2+Nb**2+d2**2-2.0_dp*Na*d2+2.0_dp*Nb*d2 &
+       -2.0_dp*Na*Nb+4.0_dp*(n2*k2)**2- &
+      8.0_dp*(ns*ks*cphi*n2*k2)+4.0_dp*Na*Nb*cphi**2
+  q2 = Na+Nb+d2
 
-    if (abs(MA2(2)) > 0.0_dp) then
-        spsi = ks/MA2(2)
-        if (spsi .lt. 1.0_dp) then
-          cpsi = sqrt(1.0_dp-spsi**2)
-        else
-          spsi = 1.0_dp
-          cpsi = 0.0_dp
-        end if
-        norm1 = 0.0_dp
-        do j1 = 1, 3
-            KF2(j1) = spsi*T3(j1)-cpsi*N(j1)
-            norm1 = norm1+KF2(j1)**2
-        end do
-        norm1 = sqrt(norm1)
-        do j1 = 1, 3
-            KF2(j1) = KF2(j1)/norm1
-        end do
+  MA2(1) = sqrt(0.5_dp*(q2+sqrt(q1)))
+
+  if((MA1(2) < epsilon(k2) .and. k2 < epsilon(k2)) .or. &
+    0.5_dp*(q2+sqrt(q1)) < epsilon(q1)) then
+    MA2(1) = n2
+    MA2(2) = 0.0_dp
+  else
+    MA2(2) = sqrt(0.5_dp*(q2+sqrt(q1))-d2)
+  endif
+
+  ! Unit direction vectors of for the reflected ray:
+  norm1 = 0.0_dp
+  norm2 = 0.0_dp
+  do j1 = 1, 3
+    KE1(j1)=KEI(j1)-2.0_dp*nke*N(j1)
+    KF1(j1)=KFI(j1)-2.0_dp*nkf*N(j1)
+    norm1=norm1+KE1(j1)**2
+    norm2=norm2+KF1(j1)**2
+  end do
+  norm1=sqrt(norm1)
+  norm2=sqrt(norm2)
+
+  do j1 = 1, 3
+    KE1(j1)=KE1(j1)/norm1
+    KF1(j1)=KF1(j1)/norm2
+  end do
+
+  ! Unit direction vectors of for the refracted ray,
+  ! total reflection:
+  sthe = ns/MA2(1)
+  if (sthe >= 1.0_dp) then
+    return
+  end if
+
+  cthe = sqrt(1.0_dp-sthe**2)
+  norm1 = 0.0_dp
+  do j1 = 1, 3
+    KE2(j1) = sthe*T2(j1) - cthe*N(j1)
+    norm1 = norm1+KE2(j1)**2
+  end do
+  norm1 = sqrt(norm1)
+  do j1 = 1, 3
+    KE2(j1) = KE2(j1)/norm1
+  end do
+
+  if(abs(MA2(2)) > 0.0_dp) then
+    spsi = ks/MA2(2)
+    if (spsi < 1.0_dp) then
+      cpsi = sqrt(1.0_dp-spsi**2)
     else
-        KF2 = KE2
+      spsi = 1.0_dp
+      cpsi = 0.0_dp
     end if
+    norm1 = 0.0_dp
+    do j1 = 1, 3
+      KF2(j1) = spsi*T3(j1)-cpsi*N(j1)
+      norm1 = norm1+KF2(j1)**2
+    end do
+    norm1 = sqrt(norm1)
+    do j1 = 1, 3
+      KF2(j1) = KF2(j1)/norm1
+    end do
+  else
+    KF2 = KE2
+  end if
 
-    !write(6,*) "MA2",MA2,sqrt(0.5_dp*(q2-sqrt(q1)))
-    !write(6,*) abs(n2-sqrt(0.5_dp*(q2-sqrt(q1)))),abs(n2-sqrt(0.5_dp*(q2+sqrt(q1))))
-    !if(abs(n2-sqrt(0.5_dp*(q2-sqrt(q1))))<abs(n2-sqrt(0.5_dp*(q2+sqrt(q1))))) then
-    !    totref =.true.
-    !endif
+  ! Wrong statement was here, 'dd' not defined
+!  if(real(m1,kind=dp)*dd/real(m2,kind=dp)>1.0_dp .and. preventTR==1) then
+!      !write(6,*) "totref"
+!      totref =.true.
+!  endif
 
-    !write(6,*) dot_product(N,KE2)
-    !write(6,*) nke
 
-    !if(ns/real(m2,kind=dp)>1.0_dp) then
-    if(real(m1,kind=dp)*dd/real(m2,kind=dp)>1.0_dp .and. preventTR==1) then
-        !write(6,*) "totref"
-        totref =.true.
-    endif
-    
-    !if (abs(k2) .lt. ktol) then
-    !    KF2 = KE2
-    !end if
-
-! Preparation for Fresnel coefficients:
-    call prosca(nke2,N,KE2)
-    call prosca(nkf2,N,KF2)
-    fki = cmplx(MA1(1)*abs(nke),MA1(2)*abs(nkf),kind=dp)
-    fkt = cmplx(MA2(1)*abs(nke2),MA2(2)*abs(nkf2),kind=dp)
+  ! Preparation for Fresnel coefficients:
+  call prosca(nke2,N,KE2)
+  call prosca(nkf2,N,KF2)
+  fki = cmplx(MA1(1)*abs(nke),MA1(2)*abs(nkf),dp)
+  fkt = cmplx(MA2(1)*abs(nke2),MA2(2)*abs(nkf2),dp)
 
 end subroutine snel2l
 
