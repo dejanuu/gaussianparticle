@@ -17,4 +17,4 @@ single-two-layer-particle/*.out
 multi-particle/*.o
 multi-particle/sirismp
 multi-particle/build/*
-test/*
+tests/*
