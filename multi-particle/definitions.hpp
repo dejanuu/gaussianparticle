@@ -1,9 +1,9 @@
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
 
-// Replaced with safer way from Boost-library
-// #define _USE_MATH_DEFINES
-// #include <math.h>
+// If problems with M_PI, comment these two lines and uncomment line 54.
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 #include <CGAL/Simple_cartesian.h>
 #include <CGAL/AABB_tree.h>
@@ -51,7 +51,7 @@ typedef Tree::Primitive_id PrimitiveType;
 static double const MAXDBLVALUE = std::numeric_limits<double>::max();
 
 // Pi from Boost
-const double M_PI = boost::math::constants::pi<double>();
+//const double M_PI = boost::math::constants::pi<double>();
 
 struct MeshStats{
     double max_dist;

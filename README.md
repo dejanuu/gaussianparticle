@@ -91,7 +91,7 @@ Option 2: use CMake
 	make
 	cp SIRISn ../sirismp
 
-With both options, you will need the C++-libraries CGAL (https://www.cgal.org/) and Boost (https://www.boost.org/) installed in your system.
+With both options, you will need the C++-libraries CGAL (https://www.cgal.org/) and Boost (https://www.boost.org/) installed in your system. Note, if compilation problems with include files or the definition of M_PI, edit Makefile and/or multi-particle/definitions.hpp.
 
 #### Usage
 
