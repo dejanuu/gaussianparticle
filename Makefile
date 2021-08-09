@@ -19,7 +19,9 @@ FOPT += -Ofast -mtune=native
 #FOPT += -g -fbacktrace -ffpe-trap=invalid,zero,overflow,underflow
 ## C++
 ### Required options for C++
-COPT = -std=c++14 -Wno-narrowing
+COPT = -std=c++14 -Wno-narrowing -I/mingw64/include
+### Where are include's
+#COPT += -I/mingw64/include
 #### For developing
 #COPT += -g
 #### Minor optimization
