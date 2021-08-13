@@ -247,9 +247,9 @@ has material surfaces 2 and 1. The order does not matter. So if the triangles in
 
 ### GS Gaussian spheres
 
-Produces random Gaussian sphere shapes and discretized mesh representations for them. Can write output in Matlab, IDL IDF, Paraview VTK, and OFF.
+Produces random Gaussian sphere shapes and discretized mesh representations for them. Can write output in Matlab, IDL IDF, Paraview VTK, OFF, and OBJ.
 
-If pubishing or distributing results that use this code, please reference to \[1\].
+If publishing or distributing results that use this code, please reference to \[1\].
 
 #### Compiling
 

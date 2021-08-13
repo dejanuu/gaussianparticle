@@ -15,7 +15,8 @@ PROGRAM GS
   real(kind=dp), dimension(:,:), allocatable :: NT0
   real(kind=dp), dimension(0:256,0:256) :: ACF, BCF, SCFSTD
   character(len=file_name_length) :: fbn, cfn, infn, tstr
-  logical :: tlog, outml=.false., outidl=.false., outvtk=.false., outoff=.false.
+  logical :: tlog, outml=.false., outidl=.false., outvtk=.false., outoff=.false., &
+    outobj=.false.
 
   ! Input file name as command argument
   if (command_argument_count() < 1) then
@@ -52,6 +53,8 @@ PROGRAM GS
   if(j1==1) outvtk = .true.
   read(infu,*) j1
   if(j1==1) outoff = .true.
+  read(infu,*) j1
+  if(j1==1) outobj = .true.
   
   write(output_unit,*) ""
   write(output_unit,'(A,A,A)') "Input read from file '", trim(infn), "':"
@@ -70,6 +73,7 @@ PROGRAM GS
   if(outidl) write(tstr,'(A,A)') trim(tstr), " IDF "
   if(outvtk) write(tstr,'(A,A)') trim(tstr), " VTK "
   if(outoff) write(tstr,'(A,A)') trim(tstr), " OFF "
+  if(outobj) write(tstr,'(A,A)') trim(tstr), " OBJ "
   write(output_unit,'(2X,A,A)') "output formats selected: ", trim(tstr)
   write(output_unit,*) ""
 
@@ -116,6 +120,7 @@ PROGRAM GS
     if(outidl) call save_idl(cfn,XN0,IT,nnod,ntri)
     if(outvtk) call save_vtk(cfn,XN0,IT,nnod,ntri)
     if(outoff) call save_off(cfn,XN0,IT,nnod,ntri)
+    if(outobj) call save_obj(cfn,XN0,IT,nnod,ntri)
 
   end do
 

@@ -761,6 +761,42 @@ end subroutine save_matlab
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! 
+subroutine save_obj(fbn,XT,IT,nnod,ntri)
+
+  character(*), intent(in) :: fbn
+  real(kind=dp), dimension(:,:), intent(in) :: XT
+  integer, dimension(:,:), intent(in) :: IT
+  integer, intent(in) :: nnod, ntri
+  integer :: j1, fu
+  character(len=file_name_length) :: fn
+
+  ! File name
+  write(fn, '(A,A)') trim(fbn), ".obj"
+  
+  ! File unit and unit opening
+  open(newunit=fu, file=trim(fn), action='write', status='replace')
+
+  write(fu,'(A)') "# OBJ"
+
+  ! Write surface vertices
+  write(fu,'(A)') "# List of vertices"
+  do j1=1,nnod
+    write (fu,'(A)',advance='no') "v"
+    write (fu,*) XT(j1,:)
+  end do
+  ! Triangle indices
+  write(fu,'(A)') "# List of faces"
+  do j1=1,ntri
+    write (fu,'(A)',advance='no') "f"
+    write (fu,*) IT(j1,:)
+  end do
+  close(fu)
+
+end subroutine save_obj
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! 
 subroutine save_off(fbn,XT,IT,nnod,ntri)
 
   character(*), intent(in) :: fbn

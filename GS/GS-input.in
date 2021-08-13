@@ -13,4 +13,5 @@ siris-output
 0               ! Output in Matlab format. 0 for no, 1 for yes.
 0               ! Output for IDL format.
 0               ! Output in VTK format
-1               ! Output in OFF format
+0               ! Output in OFF format
+1               ! Output in OBJ format
