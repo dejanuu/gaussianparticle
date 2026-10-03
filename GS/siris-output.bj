@@ -1,0 +1,15 @@
+ 
+Input read from file 'GS-input.in':
+  number of samples: 5
+  random generator seed: from system clock
+  radius relative standard deviation: 0.100000E-01
+  power law index in correlation function: 2.000    
+  min and max orders in correlation series: 15, 15
+  number of triangle rows per octant: 100
+  output formats selected:  OBJ
+ 
+Sample 1, volume  4.18893    
+Sample 2, volume  4.18867    
+Sample 3, volume  4.18955    
+Sample 4, volume  4.18956    
+Sample 5, volume  4.18876    

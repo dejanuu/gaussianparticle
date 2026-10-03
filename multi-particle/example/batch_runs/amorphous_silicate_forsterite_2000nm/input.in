@@ -1,0 +1,25 @@
+nrays 100000
+max_scattering 200
+killswitch_start 70
+nbins 80
+nbins_fine_details_start 180
+prevent_TR 0
+check_time_after_nrays 1000
+allocated_time_in_hours 9999
+
+output_file outputS.out
+pmatrix_out pmatrix.out
+details_out details.out
+
+I_cutoff_limit 0.0000001
+seed 1
+
+wavelen 2000
+mesh_scale 2000
+mesh siris-output.off
+
+force_interaction 1
+beam_radius -1
+
+material1 1.677 0.0044 1 0.9460290562711914 1.0 outputS.out 1
+media 1.0 0.0

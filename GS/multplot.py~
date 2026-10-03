@@ -1,0 +1,151 @@
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+import numpy as np
+import sys
+import os
+
+def read_obj(file_path):
+    """
+    Read an OBJ file and extract vertices and faces.
+    """
+    vertices = []
+    faces = []
+    
+    with open(file_path, 'r') as f:
+        for line in f:
+            if line.startswith('#'):
+                continue
+                
+            values = line.strip().split()
+            if not values:
+                continue
+                
+            if values[0] == 'v':
+                vertices.append([float(values[1]), float(values[2]), float(values[3])])
+            elif values[0] == 'f':
+                face = []
+                for v in values[1:]:
+                    vertex_index = int(v.split('/')[0]) - 1
+                    face.append(vertex_index)
+                faces.append(face)
+    
+    return np.array(vertices), faces
+
+
+def read_off(file_path):
+    """
+    Read an OFF file and extract vertices and faces.
+    """
+    with open(file_path, 'r') as f:
+        first_line = f.readline().strip()
+        if first_line != 'OFF':
+            raise ValueError("Not a valid OFF file.")
+        
+        n_verts, n_faces, _ = map(int, f.readline().strip().split())
+        
+        vertices = [list(map(float, f.readline().strip().split())) for _ in range(n_verts)]
+        faces = []
+        for _ in range(n_faces):
+            parts = list(map(int, f.readline().strip().split()))
+            face_vertex_count = parts[0]
+            face_indices = parts[1:1+face_vertex_count]
+            faces.append(face_indices)
+    
+    return np.array(vertices), faces
+
+
+def read_model(file_path):
+    """
+    Detect file extension and read model appropriately.
+    """
+    _, ext = os.path.splitext(file_path.lower())
+    if ext == '.obj':
+        return read_obj(file_path)
+    elif ext == '.off':
+        return read_off(file_path)
+    else:
+        raise ValueError(f"Unsupported file format: {ext}")
+
+
+def gaussian_sphere(center=(0,0,0), radius=1.0, n_points=1000, sigma=0.05):
+    """
+    Generate points for a Gaussian-blurred sphere.
+    """
+    phi = np.random.uniform(0, np.pi, n_points)
+    theta = np.random.uniform(0, 2*np.pi, n_points)
+
+    x = radius * np.sin(phi) * np.cos(theta)
+    y = radius * np.sin(phi) * np.sin(theta)
+    z = radius * np.cos(phi)
+
+    sphere = np.vstack((x, y, z)).T
+    sphere += np.random.normal(scale=sigma, size=sphere.shape)
+    sphere += np.array(center)
+
+    return sphere
+
+
+def plot_obj_and_spheres(obj_files=[], spheres=[]):
+    """
+    Plot multiple 3D mesh files and Gaussian spheres.
+    """
+    fig = plt.figure(figsize=(12, 9))
+    ax = fig.add_subplot(111, projection='3d')
+    all_points = []
+
+    # Plot all mesh files
+    for obj_file in obj_files:
+        try:
+            vertices, faces = read_model(obj_file)
+            mesh = [ [vertices[i] for i in face] for face in faces ]
+            poly = Poly3DCollection(mesh, alpha=0.5, edgecolor='k', linewidth=0.5)
+            poly.set_facecolor('lightblue')
+            ax.add_collection3d(poly)
+            all_points.append(vertices)
+        except Exception as e:
+            print(f"Error reading {obj_file}: {e}")
+
+    # Plot Gaussian spheres
+    for s in spheres:
+        verts = gaussian_sphere(
+            center=s.get("center", (0,0,0)),
+            radius=s.get("radius", 1.0),
+            n_points=s.get("n_points", 1000),
+            sigma=s.get("sigma", 0.05)
+        )
+        ax.scatter(verts[:,0], verts[:,1], verts[:,2], s=2, alpha=0.6, color=s.get("color", "red"))
+        all_points.append(verts)
+
+    # Auto-scaling
+    if all_points:
+        pts = np.vstack(all_points)
+        x, y, z = pts[:,0], pts[:,1], pts[:,2]
+        max_range = np.array([x.max()-x.min(), y.max()-y.min(), z.max()-z.min()]).max() / 2.0
+        mid_x, mid_y, mid_z = (x.max()+x.min())/2.0, (y.max()+y.min())/2.0, (z.max()+z.min())/2.0
+        ax.set_xlim(mid_x - max_range, mid_x + max_range)
+        ax.set_ylim(mid_y - max_range, mid_y + max_range)
+        ax.set_zlim(mid_z - max_range, mid_z + max_range)
+
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    ax.set_title("3D Models + Gaussian Spheres")
+    plt.tight_layout()
+    plt.show()
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python multplot.py <model1.obj/.off> <model2.obj/.off> ...")
+        sys.exit(1)
+
+    obj_files = sys.argv[1:]  # Read model paths from command line
+
+    # Customize your spheres here
+    spheres = [
+        {"center": (2, 0, 0), "radius": 1.0, "color": "red"},
+        {"center": (-2, 0, 0), "radius": 0.8, "sigma": 0.1, "color": "green"},
+        {"center": (0, 2, 0), "radius": 1.2, "color": "blue"}
+    ]
+
+    plot_obj_and_spheres(obj_files=obj_files, spheres=spheres)

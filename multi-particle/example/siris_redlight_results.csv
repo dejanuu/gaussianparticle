@@ -1,0 +1,25 @@
+material,mesh_scale,n,k,x_for_max_negative_S12_over_S11,max_negative_S12_over_S11,run_folder
+Halley-like dust,200,1.98,0.48,52.0,0.9577536868501635,/home/dnels/master/multi-particle/example/batch_runs/halley_like_dust_200
+Halley-like dust,20,1.98,0.48,52.0,0.9577517039082046,/home/dnels/master/multi-particle/example/batch_runs/halley_like_dust_20
+Amorphous silicate (forsterite),200,1.677,0.0044,83.0,0.7319723020263049,/home/dnels/master/multi-particle/example/batch_runs/amorphous_silicate_forsterite_200
+Amorphous silicate (forsterite),20,1.677,0.0044,94.0,0.40217189321992675,/home/dnels/master/multi-particle/example/batch_runs/amorphous_silicate_forsterite_20
+Water ice,200,1.308,1.43e-08,141.0,0.561151319239828,/home/dnels/master/multi-particle/example/batch_runs/water_ice_200
+Water ice,20,1.308,1.43e-08,67.0,0.6015013550135501,/home/dnels/master/multi-particle/example/batch_runs/water_ice_20
+Carbon dioxide ice,200,1.41,1.05e-06,90.0,0.5196286422213116,/home/dnels/master/multi-particle/example/batch_runs/carbon_dioxide_ice_200
+Carbon dioxide ice,20,1.41,1.05e-06,81.0,0.48795993710705426,/home/dnels/master/multi-particle/example/batch_runs/carbon_dioxide_ice_20
+Iron-rich pyroxene,200,1.675,0.0212,62.0,0.9997258297866956,/home/dnels/master/multi-particle/example/batch_runs/iron_rich_pyroxene_200
+Iron-rich pyroxene,20,1.675,0.0212,96.0,0.6412333357440757,/home/dnels/master/multi-particle/example/batch_runs/iron_rich_pyroxene_20
+Olivine,200,1.743,0.066,60.0,0.9986514897560341,/home/dnels/master/multi-particle/example/batch_runs/olivine_200
+Olivine,20,1.743,0.066,53.0,0.8383841438063634,/home/dnels/master/multi-particle/example/batch_runs/olivine_20
+Amorphous carbon,200,2.14,0.805,47.0,0.9129515941699924,/home/dnels/master/multi-particle/example/batch_runs/amorphous_carbon_200
+Amorphous carbon,20,2.14,0.805,47.0,0.9129522944227376,/home/dnels/master/multi-particle/example/batch_runs/amorphous_carbon_20
+Pyrrhotite (FeS),200,1.7,1.86,41.0,0.6231725072568608,/home/dnels/master/multi-particle/example/batch_runs/pyrrhotite_fes_200
+Pyrrhotite (FeS),20,1.7,1.86,41.0,0.6231741396915249,/home/dnels/master/multi-particle/example/batch_runs/pyrrhotite_fes_20
+Iron-rich olivine (fayalite),200,1.85,0.00077,103.0,0.4717696586212175,/home/dnels/master/multi-particle/example/batch_runs/iron_rich_olivine_fayalite_200
+Iron-rich olivine (fayalite),20,1.85,0.00077,109.0,0.3300531652723653,/home/dnels/master/multi-particle/example/batch_runs/iron_rich_olivine_fayalite_20
+Cosmic organic refractory,200,1.98,0.2677,53.0,0.9859962593301793,/home/dnels/master/multi-particle/example/batch_runs/cosmic_organic_refractory_200
+Cosmic organic refractory,20,1.98,0.2677,53.0,0.985997655674993,/home/dnels/master/multi-particle/example/batch_runs/cosmic_organic_refractory_20
+Tholin ice,200,1.54,0.0012,87.0,0.7802517415864205,/home/dnels/master/multi-particle/example/batch_runs/tholin_ice_200
+Tholin ice,20,1.54,0.0012,92.0,0.5983851549440461,/home/dnels/master/multi-particle/example/batch_runs/tholin_ice_20
+Titan tholins,200,1.557,0.0009,87.0,0.7150624801972164,/home/dnels/master/multi-particle/example/batch_runs/titan_tholins_200
+Titan tholins,20,1.557,0.0009,88.0,0.5418968292495976,/home/dnels/master/multi-particle/example/batch_runs/titan_tholins_20

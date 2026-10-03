@@ -1,0 +1,15 @@
+nrays 100000
+max_scattering 200
+killswitch_start 70
+nbins 180
+I_cutoff_limit 0.0000001
+seed 0
+wavelen 6.283185307179586
+mesh_scale 2000
+mesh siris-output.off
+force_interaction 1
+beam_radius -1
+material1 1.55 0.02 1 0.1 0.1  outputS.out 1 ~/dists/cdfconstant04dist.txt
+;; wavelength 600 nm
+;; mesh scale 1.7-170
+;; mean free path larger than size particle (two radius)

@@ -1,0 +1,8 @@
+nrays 200000
+max_scattering 200
+nbins 80
+wavelen 6.283185307179586
+mesh_scale 2000
+mesh sphere.off
+
+material1 1.5 0.01 1 0.9 1.0 outputS_ave.out 1 ~/dists/cdfconstant04dist.txt

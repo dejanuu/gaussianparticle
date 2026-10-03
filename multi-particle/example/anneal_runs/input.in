@@ -1,0 +1,13 @@
+nrays 50000
+max_scattering 200
+nbins 80
+wavelen 6.283185307179586
+mesh_scale 2000
+
+mesh testmerge.off
+
+material1 1.5 0.001 1 100 0.9
+
+media 1.0 0.0
+
+output_file outputS.out
