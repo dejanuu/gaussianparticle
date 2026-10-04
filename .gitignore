@@ -20,3 +20,5 @@ multi-particle/build/*
 tests/*
 my_env/
 *~
+my_env/
+*~
