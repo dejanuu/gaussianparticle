@@ -18,3 +18,5 @@ multi-particle/*.o
 multi-particle/sirismp
 multi-particle/build/*
 tests/*
+my_env/
+*~
